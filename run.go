@@ -45,7 +45,7 @@ func frames(model *Model, rate int) {
 
 func Run() {
 	for {
-		configs := RandomConfigs(5)
+		configs := RandomConfigs(3)
 		model := NewModel(1024, 1024, configs)
 		start := time.Now()
 		one(model, 1000)
