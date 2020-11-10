@@ -4,18 +4,37 @@ import (
 	"image"
 	"image/color"
 	"math"
+	"math/rand"
 	"sort"
 
 	"github.com/gonum/stat"
 )
 
 var Palette = []color.RGBA{
-	HexColor(0x23A9E1),
-	HexColor(0xFFE444),
-	HexColor(0xA6CB3A),
+	// HexColor(0xF41C54),
+	// HexColor(0xFF9F00),
+	// HexColor(0xFBD506),
+	// HexColor(0xA8BF12),
+	// HexColor(0x00AAB5),
+
+	// HexColor(0xD60000),
+	// HexColor(0xFF530D),
+	// HexColor(0xFFC801),
+	// HexColor(0x93C700),
+	// HexColor(0x0E99DA),
+
+	HexColor(0xFA2B31),
+	HexColor(0xFFBF1F),
+	HexColor(0xFFF146),
+	HexColor(0xABE319),
+	HexColor(0x00C481),
 }
 
 func Image(w, h int, colors [][]float64, min, max, gamma float64) image.Image {
+	rand.Shuffle(len(Palette), func(i, j int) {
+		Palette[i], Palette[j] = Palette[j], Palette[i]
+	})
+
 	im := image.NewRGBA(image.Rect(0, 0, w, h))
 
 	minValues := make([]float64, len(colors))

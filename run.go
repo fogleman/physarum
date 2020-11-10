@@ -6,7 +6,7 @@ import (
 )
 
 func one(model *Model, iterations int) {
-	now := time.Now().UTC().UnixNano()
+	now := time.Now().UTC().UnixNano() / 1000
 	path := fmt.Sprintf("out%d.png", now)
 	fmt.Println()
 	fmt.Println(path)
