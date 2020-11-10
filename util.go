@@ -31,7 +31,3 @@ func HexColor(x int) color.RGBA {
 	b := uint8((x >> 0) & 0xff)
 	return color.RGBA{r, g, b, 0xff}
 }
-
-func mod(a, b float64) float64 {
-	return math.Mod(math.Mod(a, b)+b, b)
-}

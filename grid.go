@@ -27,37 +27,6 @@ func (g *Grid) Get(x, y float64) float64 {
 	j := int(y+float64(g.H)) & (g.H - 1)
 	index := j*g.W + i
 	return g.Data[index]
-
-	// if x < 0 {
-	// 	x += float64(g.W)
-	// }
-	// if y < 0 {
-	// 	y += float64(g.H)
-	// }
-	// x0 := int(x)
-	// y0 := int(y)
-	// x1 := x0 + 1
-	// y1 := y0 + 1
-	// x -= float64(x0)
-	// y -= float64(y0)
-	// if x0 >= g.W {
-	// 	x0 -= g.W
-	// }
-	// if y0 >= g.H {
-	// 	y0 -= g.H
-	// }
-	// if x1 >= g.W {
-	// 	x1 -= g.W
-	// }
-	// if y1 >= g.H {
-	// 	y1 -= g.H
-	// }
-	// var d float64
-	// d += g.Data[x0+y0*g.W] * ((1 - x) * (1 - y))
-	// d += g.Data[x0+y1*g.W] * ((1 - x) * y)
-	// d += g.Data[x1+y0*g.W] * (x * (1 - y))
-	// d += g.Data[x1+y1*g.W] * (x * y)
-	// return d
 }
 
 func (g *Grid) Add(x, y, a float64) {
@@ -91,7 +60,10 @@ func (g *Grid) Add(x, y, a float64) {
 	g.Data[x1+y1*g.W] += a * (x * y)
 }
 
-func (g *Grid) DiffuseAndDecay(decayFactor float64) {
-	boxBlur(g.Data, g.Temp, g.W, g.H, 1, decayFactor)
-	// gaussianBlur(g.Data, g.Temp, g.W, g.H, 1, decayFactor)
+func (g *Grid) BoxBlur(radius int, decayFactor float64) {
+	boxBlur(g.Data, g.Temp, g.W, g.H, radius, decayFactor)
+}
+
+func (g *Grid) GaussianBlur(radius int, decayFactor float64) {
+	gaussianBlur(g.Data, g.Temp, g.W, g.H, radius, decayFactor)
 }

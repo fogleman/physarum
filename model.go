@@ -1,7 +1,6 @@
 package physarum
 
 import (
-	"fmt"
 	"math"
 	"math/rand"
 	"runtime"
@@ -30,7 +29,6 @@ func NewModel(w, h int, configs []*Config) *Model {
 			particles = append(particles, p)
 		}
 	}
-	fmt.Println(len(particles), "particles")
 	return &Model{w, h, configs, grids, particles}
 }
 
@@ -121,7 +119,8 @@ func (m *Model) Step() {
 				grid.Add(p.X, p.Y, config.DepositionAmount)
 			}
 		}
-		grid.DiffuseAndDecay(config.DecayFactor)
+		grid.BoxBlur(1, config.DecayFactor)
+		// grid.GaussianBlur(1, config.DecayFactor)
 		ch <- true
 	}
 
@@ -147,6 +146,7 @@ func (m *Model) Colors() [][]float64 {
 	result := make([][]float64, len(m.Grids))
 	for i, grid := range m.Grids {
 		result[i] = make([]float64, len(grid.Data))
+		// gaussianBlur(result[i], grid.Temp, grid.W, grid.H, 1, 1)
 		copy(result[i], grid.Data)
 	}
 	return result

@@ -10,6 +10,7 @@ func one(model *Model, iterations int) {
 	path := fmt.Sprintf("out%d.png", now)
 	fmt.Println()
 	fmt.Println(path)
+	fmt.Println(len(model.Particles), "particles")
 	for _, config := range model.Configs {
 		fmt.Println(*config)
 	}
@@ -22,7 +23,7 @@ func one(model *Model, iterations int) {
 
 func frames(model *Model, rate int) {
 	saveImage := func(path string, w, h int, colors [][]float64, ch chan bool) {
-		im := Image(w, h, colors, 0, 0, 1)
+		im := Image(w, h, colors, 0, 0, 1/2.2)
 		SavePNG(path, im)
 		if ch != nil {
 			ch <- true
@@ -44,9 +45,11 @@ func frames(model *Model, rate int) {
 
 func Run() {
 	for {
-		configs := RandomConfigs(3)
+		configs := RandomConfigs(5)
 		model := NewModel(1024, 1024, configs)
-		one(model, 500)
+		start := time.Now()
+		one(model, 1000)
+		fmt.Println(time.Since(start))
 	}
 	// frames(model, 1)
 }

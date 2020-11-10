@@ -1,6 +1,7 @@
 package physarum
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"math"
@@ -11,18 +12,6 @@ import (
 )
 
 var Palette = []color.RGBA{
-	// HexColor(0xF41C54),
-	// HexColor(0xFF9F00),
-	// HexColor(0xFBD506),
-	// HexColor(0xA8BF12),
-	// HexColor(0x00AAB5),
-
-	// HexColor(0xD60000),
-	// HexColor(0xFF530D),
-	// HexColor(0xFFC801),
-	// HexColor(0x93C700),
-	// HexColor(0x0E99DA),
-
 	HexColor(0xFA2B31),
 	HexColor(0xFFBF1F),
 	HexColor(0xFFF146),
@@ -50,6 +39,8 @@ func Image(w, h int, colors [][]float64, min, max, gamma float64) image.Image {
 			maxValues[i] = stat.Quantile(0.99, stat.Empirical, temp, nil)
 		}
 	}
+	fmt.Println(minValues)
+	fmt.Println(maxValues)
 
 	for y := 0; y < h; y++ {
 		for x := 0; x < w; x++ {
