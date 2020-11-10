@@ -10,10 +10,11 @@ func one(model *Model, iterations int) {
 	path := fmt.Sprintf("out%d.png", now)
 	fmt.Println()
 	fmt.Println(path)
-	fmt.Println(len(model.Particles), "particles")
 	for _, config := range model.Configs {
 		fmt.Println(*config)
 	}
+	fmt.Println(len(model.Particles), "particles")
+	SummarizeConfigs(model.Configs)
 	for i := 0; i < iterations; i++ {
 		model.Step()
 	}

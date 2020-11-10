@@ -38,9 +38,10 @@ func Image(w, h int, colors [][]float64, min, max, gamma float64) image.Image {
 			minValues[i] = stat.Quantile(0.01, stat.Empirical, temp, nil)
 			maxValues[i] = stat.Quantile(0.99, stat.Empirical, temp, nil)
 		}
+		minValues[i] = 0
+		c := Palette[i]
+		fmt.Printf("%d #%02X%02X%02X %.3f\n", i, c.R, c.G, c.B, maxValues[i])
 	}
-	fmt.Println(minValues)
-	fmt.Println(maxValues)
 
 	for y := 0; y < h; y++ {
 		for x := 0; x < w; x++ {
