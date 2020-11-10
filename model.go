@@ -68,9 +68,10 @@ func (m *Model) Step() {
 			// straight
 		} else if C < L && C < R {
 			// rotate randomly left or right
-			da = rotationAngle
 			if rnd.Intn(2) == 0 {
-				da = -da
+				da = rotationAngle
+			} else {
+				da = -rotationAngle
 			}
 		} else if L < R {
 			// rotate right
@@ -81,24 +82,9 @@ func (m *Model) Step() {
 		} else {
 			// straight
 		}
-		p.A += da
-		if p.A < 0 {
-			p.A += 2 * math.Pi
-		} else if p.A >= 2*math.Pi {
-			p.A -= 2 * math.Pi
-		}
-		p.X += cos(p.A) * stepDistance
-		p.Y += sin(p.A) * stepDistance
-		if p.X < 0 {
-			p.X += float64(m.W)
-		} else if p.X >= float64(m.W) {
-			p.X -= float64(m.W)
-		}
-		if p.Y < 0 {
-			p.Y += float64(m.H)
-		} else if p.Y >= float64(m.H) {
-			p.Y -= float64(m.H)
-		}
+		p.A = Shift(p.A+da, 2*math.Pi)
+		p.X = Shift(p.X+cos(p.A)*stepDistance, float64(m.W))
+		p.Y = Shift(p.Y+sin(p.A)*stepDistance, float64(m.H))
 		m.Particles[i] = p
 	}
 
@@ -119,7 +105,7 @@ func (m *Model) Step() {
 				grid.Add(p.X, p.Y, config.DepositionAmount)
 			}
 		}
-		grid.BoxBlur(1, config.DecayFactor)
+		grid.BoxBlur(1, 2, config.DecayFactor)
 		// grid.GaussianBlur(1, config.DecayFactor)
 		ch <- true
 	}
@@ -146,7 +132,6 @@ func (m *Model) Colors() [][]float64 {
 	result := make([][]float64, len(m.Grids))
 	for i, grid := range m.Grids {
 		result[i] = make([]float64, len(grid.Data))
-		// gaussianBlur(result[i], grid.Temp, grid.W, grid.H, 1, 1)
 		copy(result[i], grid.Data)
 	}
 	return result

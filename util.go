@@ -31,3 +31,17 @@ func HexColor(x int) color.RGBA {
 	b := uint8((x >> 0) & 0xff)
 	return color.RGBA{r, g, b, 0xff}
 }
+
+func IsPowerOfTwo(x int) bool {
+	return (x & (x - 1)) == 0
+}
+
+func Shift(x, size float64) float64 {
+	if x < 0 {
+		return x + size
+	}
+	if x >= size {
+		return x - size
+	}
+	return x
+}

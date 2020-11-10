@@ -1,9 +1,13 @@
 package physarum
 
-import "math"
+import (
+	"log"
+	"math"
+)
 
 const (
-	trigTableSize = 4096
+	trigTableSize = 65536
+	trigTableMask = trigTableSize - 1
 	trigFactor    = trigTableSize / (2 * math.Pi)
 )
 
@@ -13,6 +17,9 @@ var (
 )
 
 func init() {
+	if !IsPowerOfTwo(trigTableSize) {
+		log.Fatal("trigTableSize must be a power of two")
+	}
 	sinTable = make([]float64, trigTableSize)
 	cosTable = make([]float64, trigTableSize)
 	for i := range sinTable {
@@ -24,11 +31,11 @@ func init() {
 }
 
 func sin(t float64) float64 {
-	i := int(t*trigFactor+trigTableSize) & (trigTableSize - 1)
+	i := int(t*trigFactor+trigTableSize) & trigTableMask
 	return sinTable[i]
 }
 
 func cos(t float64) float64 {
-	i := int(t*trigFactor+trigTableSize) & (trigTableSize - 1)
+	i := int(t*trigFactor+trigTableSize) & trigTableMask
 	return cosTable[i]
 }

@@ -2,6 +2,8 @@ package physarum
 
 import "math"
 
+// TODO: wrap blur window at edges
+
 func boxBlurH(src, dst []float64, w, h, r int, scale float64) {
 	m := scale / float64(r+r+1)
 	for i := 0; i < h; i++ {
