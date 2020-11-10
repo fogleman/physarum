@@ -15,7 +15,6 @@ func one(model *Model, iterations int) {
 		fmt.Println(*config)
 	}
 	for i := 0; i < iterations; i++ {
-		// fmt.Println(i)
 		model.Step()
 	}
 	SavePNG(path, Image(model.W, model.H, model.Colors(), 0, 0, 1/2.2))
@@ -48,7 +47,7 @@ func Run() {
 		configs := RandomConfigs(3)
 		model := NewModel(1024, 1024, configs)
 		start := time.Now()
-		one(model, 1000)
+		one(model, 500)
 		fmt.Println(time.Since(start))
 	}
 	// frames(model, 1)
