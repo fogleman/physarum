@@ -2,6 +2,7 @@ package physarum
 
 import (
 	"image"
+	"image/color"
 	"image/png"
 	"math"
 	"os"
@@ -22,6 +23,13 @@ func SavePNG(path string, im image.Image) error {
 	}
 	defer file.Close()
 	return png.Encode(file, im)
+}
+
+func HexColor(x int) color.RGBA {
+	r := uint8((x >> 16) & 0xff)
+	g := uint8((x >> 8) & 0xff)
+	b := uint8((x >> 0) & 0xff)
+	return color.RGBA{r, g, b, 0xff}
 }
 
 func mod(a, b float64) float64 {

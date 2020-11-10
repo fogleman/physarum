@@ -2,19 +2,27 @@ package physarum
 
 import (
 	"fmt"
+	"time"
 )
 
 func one(model *Model, iterations int) {
+	now := time.Now().UTC().UnixNano()
+	path := fmt.Sprintf("out%d.png", now)
+	fmt.Println()
+	fmt.Println(path)
+	for _, config := range model.Configs {
+		fmt.Println(*config)
+	}
 	for i := 0; i < iterations; i++ {
-		fmt.Println(i)
+		// fmt.Println(i)
 		model.Step()
 	}
-	SavePNG("out.png", Image(model.W, model.H, model.Colors()))
+	SavePNG(path, Image(model.W, model.H, model.Colors(), 0, 0, 1/2.2))
 }
 
 func frames(model *Model, rate int) {
 	saveImage := func(path string, w, h int, colors [][]float64, ch chan bool) {
-		im := Image(w, h, colors)
+		im := Image(w, h, colors, 0, 0, 1)
 		SavePNG(path, im)
 		if ch != nil {
 			ch <- true
@@ -35,7 +43,10 @@ func frames(model *Model, rate int) {
 }
 
 func Run() {
-	model := NewModel(1920, 1080, DefaultConfigs)
-	// one(model, 100)
-	frames(model, 5)
+	for {
+		configs := RandomConfigs(3)
+		model := NewModel(1024, 1024, configs)
+		one(model, 500)
+	}
+	// frames(model, 1)
 }

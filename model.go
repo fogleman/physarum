@@ -1,6 +1,7 @@
 package physarum
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
 	"runtime"
@@ -29,6 +30,7 @@ func NewModel(w, h int, configs []*Config) *Model {
 			particles = append(particles, p)
 		}
 	}
+	fmt.Println(len(particles), "particles")
 	return &Model{w, h, configs, grids, particles}
 }
 
@@ -45,31 +47,22 @@ func (m *Model) Step() {
 		rotationAngle := config.RotationAngle
 		stepDistance := config.StepDistance
 
-		// sensorAngle = (u + 0.5) * math.Pi * 2
-		// // sensorDistance = v * 64
-		// rotationAngle = (v + 0.5) * math.Pi * 2
-
-		// // rotationAngle *= (1 + rnd.NormFloat64()*0.2)
-		// // stepDistance *= (1 + rnd.NormFloat64()*0.2)
-		// // sensorAngle *= (1 + rnd.NormFloat64()*0.05)
-		// // rotationAngle *= (1 + rnd.NormFloat64()*0.05)
-		// sensorAngle += rnd.NormFloat64() * gg.Radians(15)
-		// rotationAngle += rnd.NormFloat64() * gg.Radians(15)
-
-		xc := p.X + math.Cos(p.A)*sensorDistance
-		yc := p.Y + math.Sin(p.A)*sensorDistance
-		xl := p.X + math.Cos(p.A-sensorAngle)*sensorDistance
-		yl := p.Y + math.Sin(p.A-sensorAngle)*sensorDistance
-		xr := p.X + math.Cos(p.A+sensorAngle)*sensorDistance
-		yr := p.Y + math.Sin(p.A+sensorAngle)*sensorDistance
-		C := m.Grids[p.C].Get(xc, yc)
-		L := m.Grids[p.C].Get(xl, yl)
-		R := m.Grids[p.C].Get(xr, yr)
+		xc := p.X + cos(p.A)*sensorDistance
+		yc := p.Y + sin(p.A)*sensorDistance
+		xl := p.X + cos(p.A-sensorAngle)*sensorDistance
+		yl := p.Y + sin(p.A-sensorAngle)*sensorDistance
+		xr := p.X + cos(p.A+sensorAngle)*sensorDistance
+		yr := p.Y + sin(p.A+sensorAngle)*sensorDistance
+		var C, L, R float64
 		for c, grid := range m.Grids {
-			if c != p.C {
-				C -= grid.Get(xc, yc) * 1
-				L -= grid.Get(xl, yl) * 1
-				R -= grid.Get(xr, yr) * 1
+			if c == p.C {
+				C += grid.Get(xc, yc)
+				L += grid.Get(xl, yl)
+				R += grid.Get(xr, yr)
+			} else {
+				C -= grid.Get(xc, yc)
+				L -= grid.Get(xl, yl)
+				R -= grid.Get(xr, yr)
 			}
 		}
 		var da float64
@@ -91,18 +84,21 @@ func (m *Model) Step() {
 			// straight
 		}
 		p.A += da
-		p.X += math.Cos(p.A) * stepDistance
-		p.Y += math.Sin(p.A) * stepDistance
+		if p.A < 0 {
+			p.A += 2 * math.Pi
+		} else if p.A >= 2*math.Pi {
+			p.A -= 2 * math.Pi
+		}
+		p.X += cos(p.A) * stepDistance
+		p.Y += sin(p.A) * stepDistance
 		if p.X < 0 {
 			p.X += float64(m.W)
+		} else if p.X >= float64(m.W) {
+			p.X -= float64(m.W)
 		}
 		if p.Y < 0 {
 			p.Y += float64(m.H)
-		}
-		if p.X >= float64(m.W) {
-			p.X -= float64(m.W)
-		}
-		if p.Y >= float64(m.H) {
+		} else if p.Y >= float64(m.H) {
 			p.Y -= float64(m.H)
 		}
 		m.Particles[i] = p
@@ -117,6 +113,18 @@ func (m *Model) Step() {
 		ch <- true
 	}
 
+	updateGrids := func(c int, ch chan bool) {
+		config := m.Configs[c]
+		grid := m.Grids[c]
+		for _, p := range m.Particles {
+			if p.C == c {
+				grid.Add(p.X, p.Y, config.DepositionAmount)
+			}
+		}
+		grid.DiffuseAndDecay(config.DecayFactor)
+		ch <- true
+	}
+
 	wn := runtime.NumCPU()
 	ch := make(chan bool, wn)
 	for wi := 0; wi < wn; wi++ {
@@ -126,48 +134,14 @@ func (m *Model) Step() {
 		<-ch
 	}
 
-	for _, p := range m.Particles {
-		config := m.Configs[p.C]
-		m.Grids[p.C].Add(p.X, p.Y, config.DepositionAmount)
+	wn = len(m.Configs)
+	for wi := 0; wi < wn; wi++ {
+		go updateGrids(wi, ch)
 	}
-
-	for c, config := range m.Configs {
-		m.Grids[c].DiffuseAndDecay(config.DecayFactor)
+	for wi := 0; wi < wn; wi++ {
+		<-ch
 	}
 }
-
-// func (m *Model) Image() image.Image {
-// 	im := image.NewRGBA(image.Rect(0, 0, m.W, m.H))
-// 	for y := 0; y < m.H; y++ {
-// 		for x := 0; x < m.W; x++ {
-// 			index := y*m.W + x
-// 			var r, g, b float64
-// 			for i, grid := range m.Grids {
-// 				t := grid.Data[index] / 5
-// 				if t > 1 {
-// 					t = 1
-// 				}
-// 				t = math.Pow(t, 1/2.2)
-// 				switch i {
-// 				case 0:
-// 					r = t
-// 				case 1:
-// 					b = t
-// 				case 2:
-// 					g = t
-// 				}
-// 			}
-// 			c := color.RGBA{
-// 				uint8(r * 255),
-// 				uint8(g * 255),
-// 				uint8(b * 255),
-// 				255,
-// 			}
-// 			im.SetRGBA(x, y, c)
-// 		}
-// 	}
-// 	return im
-// }
 
 func (m *Model) Colors() [][]float64 {
 	result := make([][]float64, len(m.Grids))
