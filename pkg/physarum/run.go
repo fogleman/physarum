@@ -18,12 +18,15 @@ func one(model *Model, iterations int) {
 	for i := 0; i < iterations; i++ {
 		model.Step()
 	}
-	SavePNG(path, Image(model.W, model.H, model.Colors(), 0, 0, 1/2.2))
+	palette := ShuffledPalette(DefaultPalette)
+	SavePNG(path, Image(model.W, model.H, model.Data(), palette, 0, 0, 1/2.2))
 }
 
 func frames(model *Model, rate int) {
-	saveImage := func(path string, w, h int, colors [][]float64, ch chan bool) {
-		im := Image(w, h, colors, 0, 0, 1/2.2)
+	palette := ShuffledPalette(DefaultPalette)
+
+	saveImage := func(path string, w, h int, grids [][]float64, ch chan bool) {
+		im := Image(w, h, grids, palette, 0, 10, 1/2.2)
 		SavePNG(path, im)
 		if ch != nil {
 			ch <- true
@@ -37,13 +40,19 @@ func frames(model *Model, rate int) {
 		model.Step()
 		if i%rate == 0 {
 			<-ch
-			path := fmt.Sprintf("out%08d.png", i/rate)
-			go saveImage(path, model.W, model.H, model.Colors(), ch)
+			path := fmt.Sprintf("frame%08d.png", i/rate)
+			go saveImage(path, model.W, model.H, model.Data(), ch)
 		}
 	}
 }
 
 func Run() {
+	if false {
+		configs := RandomConfigs(3)
+		model := NewModel(1024, 1024, configs)
+		frames(model, 10)
+	}
+
 	for {
 		configs := RandomConfigs(3)
 		model := NewModel(1024, 1024, configs)
@@ -51,5 +60,4 @@ func Run() {
 		one(model, 500)
 		fmt.Println(time.Since(start))
 	}
-	// frames(model, 1)
 }

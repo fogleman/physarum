@@ -128,7 +128,7 @@ func (m *Model) Step() {
 	}
 }
 
-func (m *Model) Colors() [][]float64 {
+func (m *Model) Data() [][]float64 {
 	result := make([][]float64, len(m.Grids))
 	for i, grid := range m.Grids {
 		result[i] = make([]float64, len(grid.Data))

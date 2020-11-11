@@ -12,30 +12,30 @@ const (
 )
 
 var (
-	sinTable []float64
-	cosTable []float64
+	sinTable []float32
+	cosTable []float32
 )
 
 func init() {
 	if !IsPowerOfTwo(trigTableSize) {
 		log.Fatal("trigTableSize must be a power of two")
 	}
-	sinTable = make([]float64, trigTableSize)
-	cosTable = make([]float64, trigTableSize)
+	sinTable = make([]float32, trigTableSize)
+	cosTable = make([]float32, trigTableSize)
 	for i := range sinTable {
 		t := float64(i) / trigTableSize
 		a := t * 2 * math.Pi
-		sinTable[i] = math.Sin(a)
-		cosTable[i] = math.Cos(a)
+		sinTable[i] = float32(math.Sin(a))
+		cosTable[i] = float32(math.Cos(a))
 	}
 }
 
 func sin(t float64) float64 {
 	i := int(t*trigFactor+trigTableSize) & trigTableMask
-	return sinTable[i]
+	return float64(sinTable[i])
 }
 
 func cos(t float64) float64 {
 	i := int(t*trigFactor+trigTableSize) & trigTableMask
-	return cosTable[i]
+	return float64(cosTable[i])
 }
