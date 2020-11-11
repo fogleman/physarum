@@ -1,38 +1,42 @@
 package physarum
 
-import "math"
-
-// TODO: wrap blur window at edges
+import (
+	"math"
+)
 
 func boxBlurH(src, dst []float64, w, h, r int, scale float64) {
 	m := scale / float64(r+r+1)
+	ww := w - (r*2 + 1)
 	for i := 0; i < h; i++ {
 		ti := i * w
-		li := ti
+		li := ti + w - 1 - r
 		ri := ti + r
-		fv := src[ti]
-		lv := src[ti+w-1]
-		val := float64(r+1) * fv
+		val := src[li]
 		for j := 0; j < r; j++ {
+			val += src[ti+w-1-j]
 			val += src[ti+j]
 		}
 		for j := 0; j <= r; j++ {
-			val += src[ri] - fv
-			dst[ti] = val * m
-			ri++
-			ti++
-		}
-		for j := r + 1; j < w-r; j++ {
 			val += src[ri] - src[li]
 			dst[ti] = val * m
 			li++
 			ri++
 			ti++
 		}
-		for j := w - r; j < w; j++ {
-			val += lv - src[li]
+		li = i * w
+		for j := 0; j < ww; j++ {
+			val += src[ri] - src[li]
 			dst[ti] = val * m
 			li++
+			ri++
+			ti++
+		}
+		ri = i * w
+		for j := 0; j < r; j++ {
+			val += src[ri] - src[li]
+			dst[ti] = val * m
+			li++
+			ri++
 			ti++
 		}
 	}
@@ -40,33 +44,37 @@ func boxBlurH(src, dst []float64, w, h, r int, scale float64) {
 
 func boxBlurV(src, dst []float64, w, h, r int, scale float64) {
 	m := scale / float64(r+r+1)
+	hh := h - (r*2 + 1)
 	for i := 0; i < w; i++ {
 		ti := i
-		li := ti
+		li := ti + (h-1-r)*w
 		ri := ti + r*w
-		fv := src[ti]
-		lv := src[ti+w*(h-1)]
-		val := float64(r+1) * fv
+		val := src[li]
 		for j := 0; j < r; j++ {
+			val += src[ti+(w-1-j)*w]
 			val += src[ti+j*w]
 		}
 		for j := 0; j <= r; j++ {
-			val += src[ri] - fv
-			dst[ti] = val * m
-			ri += w
-			ti += w
-		}
-		for j := r + 1; j < h-r; j++ {
 			val += src[ri] - src[li]
 			dst[ti] = val * m
 			li += w
 			ri += w
 			ti += w
 		}
-		for j := h - r; j < h; j++ {
-			val += lv - src[li]
+		li = i
+		for j := 0; j < hh; j++ {
+			val += src[ri] - src[li]
 			dst[ti] = val * m
 			li += w
+			ri += w
+			ti += w
+		}
+		ri = i
+		for j := 0; j < r; j++ {
+			val += src[ri] - src[li]
+			dst[ti] = val * m
+			li += w
+			ri += w
 			ti += w
 		}
 	}
