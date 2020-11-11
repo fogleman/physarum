@@ -18,4 +18,4 @@ That's the magic of generative algorithms!
 
 ## Examples
 
-![Examples](https://www.michaelfogleman.com/static/physarum/montage.jpg)
+![Montage](https://www.michaelfogleman.com/static/physarum/montage.jpg)
