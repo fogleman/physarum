@@ -13,7 +13,7 @@ func boxBlurH(src, dst []float64, w, h, r int, scale float64) {
 		ri := ti + r
 		val := src[li]
 		for j := 0; j < r; j++ {
-			val += src[ti+w-1-j]
+			val += src[li+j+1]
 			val += src[ti+j]
 		}
 		for j := 0; j <= r; j++ {
@@ -51,7 +51,7 @@ func boxBlurV(src, dst []float64, w, h, r int, scale float64) {
 		ri := ti + r*w
 		val := src[li]
 		for j := 0; j < r; j++ {
-			val += src[ti+(w-1-j)*w]
+			val += src[li+(j+1)*w]
 			val += src[ti+j*w]
 		}
 		for j := 0; j <= r; j++ {
