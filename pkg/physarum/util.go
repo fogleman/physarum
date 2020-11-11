@@ -16,13 +16,15 @@ func Degrees(radians float64) float64 {
 	return radians * 180 / math.Pi
 }
 
-func SavePNG(path string, im image.Image) error {
+func SavePNG(path string, im image.Image, level png.CompressionLevel) error {
 	file, err := os.Create(path)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
-	return png.Encode(file, im)
+	var encoder png.Encoder
+	encoder.CompressionLevel = level
+	return encoder.Encode(file, im)
 }
 
 func HexColor(x int) color.RGBA {

@@ -2,6 +2,7 @@ package physarum
 
 import (
 	"fmt"
+	"image/png"
 	"time"
 )
 
@@ -19,7 +20,8 @@ func one(model *Model, iterations int) {
 		model.Step()
 	}
 	palette := ShuffledPalette(DefaultPalette)
-	SavePNG(path, Image(model.W, model.H, model.Data(), palette, 0, 0, 1/2.2))
+	im := Image(model.W, model.H, model.Data(), palette, 0, 0, 1/2.2)
+	SavePNG(path, im, png.DefaultCompression)
 }
 
 func frames(model *Model, rate int) {
@@ -27,7 +29,7 @@ func frames(model *Model, rate int) {
 
 	saveImage := func(path string, w, h int, grids [][]float64, ch chan bool) {
 		im := Image(w, h, grids, palette, 0, 10, 1/2.2)
-		SavePNG(path, im)
+		SavePNG(path, im, png.BestSpeed)
 		if ch != nil {
 			ch <- true
 		}
@@ -50,7 +52,7 @@ func Run() {
 	if false {
 		configs := RandomConfigs(3)
 		model := NewModel(1024, 1024, configs)
-		frames(model, 10)
+		frames(model, 4)
 	}
 
 	for {
