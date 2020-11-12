@@ -1,9 +1,7 @@
 package main
 
 import (
-	"math/rand"
 	_ "net/http/pprof"
-	"time"
 
 	"github.com/fogleman/physarum/pkg/physarum"
 )
@@ -13,7 +11,7 @@ func main() {
 	// 	log.Println(http.ListenAndServe("localhost:6060", nil))
 	// }()
 
-	rand.Seed(time.Now().UTC().UnixNano())
+	// rand.Seed(time.Now().UTC().UnixNano())
 
 	physarum.Run()
 }

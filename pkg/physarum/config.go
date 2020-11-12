@@ -15,13 +15,13 @@ type Config struct {
 	DecayFactor          float32
 }
 
-func RandomConfig() *Config {
+func RandomConfig() Config {
 	sensorAngle := rand.Float32() * Radians(90)
 	sensorDistance := rand.Float32() * 64
 	rotationAngle := rand.Float32() * Radians(90)
 	stepDistance := 0.5 + rand.Float32()*2.5
 	decayFactor := 0.1 + rand.Float32()*0.2
-	return &Config{
+	return Config{
 		PopulationPercentage: 0.5,
 		SensorAngle:          sensorAngle,
 		SensorDistance:       sensorDistance,
@@ -32,15 +32,15 @@ func RandomConfig() *Config {
 	}
 }
 
-func RandomConfigs(n int) []*Config {
-	configs := make([]*Config, n)
+func RandomConfigs(n int) []Config {
+	configs := make([]Config, n)
 	for i := range configs {
 		configs[i] = RandomConfig()
 	}
 	return configs
 }
 
-func SummarizeConfigs(configs []*Config) {
+func SummarizeConfigs(configs []Config) {
 	summarize := func(name string, getter func(i int) float32) {
 		fmt.Printf("%s ", name)
 		for i := 0; i < 17-len(name); i++ {

@@ -10,12 +10,12 @@ type Model struct {
 	W          int
 	H          int
 	Iterations int
-	Configs    []*Config
+	Configs    []Config
 	Grids      []*Grid
 	Particles  []Particle
 }
 
-func NewModel(w, h int, configs []*Config) *Model {
+func NewModel(w, h int, configs []Config) *Model {
 	grids := make([]*Grid, len(configs))
 	var particles []Particle
 	for c, config := range configs {

@@ -12,7 +12,7 @@ func one(model *Model, iterations int) {
 	fmt.Println()
 	fmt.Println(path)
 	for _, config := range model.Configs {
-		fmt.Println(*config)
+		fmt.Println(config)
 	}
 	fmt.Println(len(model.Particles), "particles")
 	SummarizeConfigs(model.Configs)
