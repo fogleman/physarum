@@ -30,12 +30,12 @@ func init() {
 	}
 }
 
-func sin(t float64) float64 {
+func sin(t float32) float32 {
 	i := int(t*trigFactor+trigTableSize) & trigTableMask
-	return float64(sinTable[i])
+	return float32(sinTable[i])
 }
 
-func cos(t float64) float64 {
+func cos(t float32) float32 {
 	i := int(t*trigFactor+trigTableSize) & trigTableMask
-	return float64(cosTable[i])
+	return float32(cosTable[i])
 }

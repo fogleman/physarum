@@ -20,12 +20,12 @@ func NewModel(w, h int, configs []*Config) *Model {
 	var particles []Particle
 	for c, config := range configs {
 		grids[c] = NewGrid(w, h)
-		numParticles := int(float64(w*h) * config.PopulationPercentage)
+		numParticles := int(float32(w*h) * config.PopulationPercentage)
 		for i := 0; i < numParticles; i++ {
-			x := rand.Float64() * float64(w)
-			y := rand.Float64() * float64(h)
-			a := rand.Float64() * 2 * math.Pi
-			p := Particle{x, y, a, c}
+			x := rand.Float32() * float32(w)
+			y := rand.Float32() * float32(h)
+			a := rand.Float32() * 2 * math.Pi
+			p := Particle{x, y, a, uint32(c)}
 			particles = append(particles, p)
 		}
 	}
@@ -37,8 +37,8 @@ func (m *Model) Step() {
 		p := m.Particles[i]
 		config := m.Configs[p.C]
 
-		// u := p.X / float64(m.W)
-		// v := p.Y / float64(m.H)
+		// u := p.X / float32(m.W)
+		// v := p.Y / float32(m.H)
 
 		sensorDistance := config.SensorDistance
 		sensorAngle := config.SensorAngle
@@ -51,9 +51,9 @@ func (m *Model) Step() {
 		yl := p.Y + sin(p.A-sensorAngle)*sensorDistance
 		xr := p.X + cos(p.A+sensorAngle)*sensorDistance
 		yr := p.Y + sin(p.A+sensorAngle)*sensorDistance
-		var C, L, R float64
+		var C, L, R float32
 		for c, grid := range m.Grids {
-			if c == p.C {
+			if uint32(c) == p.C {
 				C += grid.Get(xc, yc)
 				L += grid.Get(xl, yl)
 				R += grid.Get(xr, yr)
@@ -63,7 +63,7 @@ func (m *Model) Step() {
 				R -= grid.Get(xr, yr)
 			}
 		}
-		var da float64
+		var da float32
 		if C > L && C > R {
 			// straight
 		} else if C < L && C < R {
@@ -83,8 +83,8 @@ func (m *Model) Step() {
 			// straight
 		}
 		p.A = Shift(p.A+da, 2*math.Pi)
-		p.X = Shift(p.X+cos(p.A)*stepDistance, float64(m.W))
-		p.Y = Shift(p.Y+sin(p.A)*stepDistance, float64(m.H))
+		p.X = Shift(p.X+cos(p.A)*stepDistance, float32(m.W))
+		p.Y = Shift(p.Y+sin(p.A)*stepDistance, float32(m.H))
 		m.Particles[i] = p
 	}
 
@@ -103,12 +103,11 @@ func (m *Model) Step() {
 		config := m.Configs[c]
 		grid := m.Grids[c]
 		for _, p := range m.Particles {
-			if p.C == c {
+			if uint32(c) == p.C {
 				grid.Add(p.X, p.Y, config.DepositionAmount)
 			}
 		}
-		grid.BoxBlur(1, 2, config.DecayFactor)
-		// grid.GaussianBlur(1, config.DecayFactor)
+		grid.BoxBlur(1, 1, config.DecayFactor)
 		ch <- true
 	}
 
@@ -132,10 +131,10 @@ func (m *Model) Step() {
 	m.Iterations++
 }
 
-func (m *Model) Data() [][]float64 {
-	result := make([][]float64, len(m.Grids))
+func (m *Model) Data() [][]float32 {
+	result := make([][]float32, len(m.Grids))
 	for i, grid := range m.Grids {
-		result[i] = make([]float64, len(grid.Data))
+		result[i] = make([]float32, len(grid.Data))
 		copy(result[i], grid.Data)
 	}
 	return result

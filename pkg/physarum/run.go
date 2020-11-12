@@ -27,7 +27,7 @@ func one(model *Model, iterations int) {
 func frames(model *Model, rate int) {
 	palette := ShuffledPalette(DefaultPalette)
 
-	saveImage := func(path string, w, h int, grids [][]float64, ch chan bool) {
+	saveImage := func(path string, w, h int, grids [][]float32, ch chan bool) {
 		im := Image(w, h, grids, palette, 0, 10, 1/2.2)
 		SavePNG(path, im, png.BestSpeed)
 		if ch != nil {

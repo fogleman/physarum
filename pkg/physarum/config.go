@@ -6,21 +6,21 @@ import (
 )
 
 type Config struct {
-	PopulationPercentage float64
-	SensorAngle          float64
-	SensorDistance       float64
-	RotationAngle        float64
-	StepDistance         float64
-	DepositionAmount     float64
-	DecayFactor          float64
+	PopulationPercentage float32
+	SensorAngle          float32
+	SensorDistance       float32
+	RotationAngle        float32
+	StepDistance         float32
+	DepositionAmount     float32
+	DecayFactor          float32
 }
 
 func RandomConfig() *Config {
-	sensorAngle := rand.Float64() * Radians(90)
-	sensorDistance := rand.Float64() * 64
-	rotationAngle := rand.Float64() * Radians(90)
-	stepDistance := 0.5 + rand.Float64()*2.5
-	decayFactor := 0.1 + rand.Float64()*0.2
+	sensorAngle := rand.Float32() * Radians(90)
+	sensorDistance := rand.Float32() * 64
+	rotationAngle := rand.Float32() * Radians(90)
+	stepDistance := 0.5 + rand.Float32()*2.5
+	decayFactor := 0.1 + rand.Float32()*0.2
 	return &Config{
 		PopulationPercentage: 0.5,
 		SensorAngle:          sensorAngle,
@@ -41,7 +41,7 @@ func RandomConfigs(n int) []*Config {
 }
 
 func SummarizeConfigs(configs []*Config) {
-	summarize := func(name string, getter func(i int) float64) {
+	summarize := func(name string, getter func(i int) float32) {
 		fmt.Printf("%s ", name)
 		for i := 0; i < 17-len(name); i++ {
 			fmt.Printf(".")
@@ -55,19 +55,19 @@ func SummarizeConfigs(configs []*Config) {
 		fmt.Printf("\n")
 	}
 
-	summarize("StepDistance", func(i int) float64 {
+	summarize("StepDistance", func(i int) float32 {
 		return configs[i].StepDistance
 	})
-	summarize("SensorDistance", func(i int) float64 {
+	summarize("SensorDistance", func(i int) float32 {
 		return configs[i].SensorDistance
 	})
-	summarize("SensorAngle", func(i int) float64 {
+	summarize("SensorAngle", func(i int) float32 {
 		return Degrees(configs[i].SensorAngle)
 	})
-	summarize("RotationAngle", func(i int) float64 {
+	summarize("RotationAngle", func(i int) float32 {
 		return Degrees(configs[i].RotationAngle)
 	})
-	summarize("DecayFactor", func(i int) float64 {
+	summarize("DecayFactor", func(i int) float32 {
 		return configs[i].DecayFactor
 	})
 }

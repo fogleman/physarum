@@ -8,11 +8,11 @@ import (
 	"os"
 )
 
-func Radians(degrees float64) float64 {
+func Radians(degrees float32) float32 {
 	return degrees * math.Pi / 180
 }
 
-func Degrees(radians float64) float64 {
+func Degrees(radians float32) float32 {
 	return radians * 180 / math.Pi
 }
 
@@ -38,7 +38,7 @@ func IsPowerOfTwo(x int) bool {
 	return (x & (x - 1)) == 0
 }
 
-func Shift(x, size float64) float64 {
+func Shift(x, size float32) float32 {
 	if x < 0 {
 		return x + size
 	}
