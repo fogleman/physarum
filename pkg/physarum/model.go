@@ -4,15 +4,15 @@ import (
 	"math"
 	"math/rand"
 	"runtime"
-	"time"
 )
 
 type Model struct {
-	W         int
-	H         int
-	Configs   []*Config
-	Grids     []*Grid
-	Particles []Particle
+	W          int
+	H          int
+	Iterations int
+	Configs    []*Config
+	Grids      []*Grid
+	Particles  []Particle
 }
 
 func NewModel(w, h int, configs []*Config) *Model {
@@ -29,7 +29,7 @@ func NewModel(w, h int, configs []*Config) *Model {
 			particles = append(particles, p)
 		}
 	}
-	return &Model{w, h, configs, grids, particles}
+	return &Model{w, h, 0, configs, grids, particles}
 }
 
 func (m *Model) Step() {
@@ -89,7 +89,9 @@ func (m *Model) Step() {
 	}
 
 	updateParticles := func(wi, wn int, ch chan bool) {
-		rnd := rand.New(rand.NewSource(time.Now().UTC().UnixNano()))
+		// seed := time.Now().UTC().UnixNano()
+		seed := int64(m.Iterations)<<8 | int64(wi)
+		rnd := rand.New(rand.NewSource(seed))
 		n := len(m.Particles)
 		for i := wi; i < n; i += wn {
 			updateParticle(rnd, i)
@@ -126,6 +128,8 @@ func (m *Model) Step() {
 	for wi := 0; wi < wn; wi++ {
 		<-ch
 	}
+
+	m.Iterations++
 }
 
 func (m *Model) Data() [][]float64 {
