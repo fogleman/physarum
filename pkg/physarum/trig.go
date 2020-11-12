@@ -32,10 +32,10 @@ func init() {
 
 func sin(t float32) float32 {
 	i := int(t*trigFactor+trigTableSize) & trigTableMask
-	return float32(sinTable[i])
+	return sinTable[i]
 }
 
 func cos(t float32) float32 {
 	i := int(t*trigFactor+trigTableSize) & trigTableMask
-	return float32(cosTable[i])
+	return cosTable[i]
 }

@@ -49,6 +49,21 @@ func Image(w, h int, grids [][]float32, palette []color.RGBA, min, max, gamma fl
 		}
 	}
 
+	makeGammaLookupTable := func(gamma float32) func(t float32) float32 {
+		const size = 65536
+		table := make([]float32, size)
+		for i := range table {
+			t := float64(i) / (size - 1)
+			table[i] = float32(math.Pow(t, float64(gamma)))
+		}
+		factor := float32(size - 1)
+		return func(t float32) float32 {
+			i := int(t * factor)
+			return table[i]
+		}
+	}
+	lookup := makeGammaLookupTable(gamma)
+
 	for y := 0; y < h; y++ {
 		for x := 0; x < w; x++ {
 			index := y*w + x
@@ -62,10 +77,7 @@ func Image(w, h int, grids [][]float32, palette []color.RGBA, min, max, gamma fl
 				if t > 1 {
 					t = 1
 				}
-				if gamma != 1 {
-					// TODO: gamma lookup table similar to trig lookup table
-					t = float32(math.Pow(float64(t), float64(gamma)))
-				}
+				t = lookup(t)
 				c := palette[i]
 				r += float32(c.R) * t
 				g += float32(c.G) * t
