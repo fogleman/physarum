@@ -64,25 +64,9 @@ func (m *Model) Step() {
 				R -= grid.Get(xr, yr) * repulsionFactor
 			}
 		}
-		var da float32
-		if C > L && C > R {
-			// straight
-		} else if C < L && C < R {
-			// rotate randomly left or right
-			if rnd.Intn(2) == 0 {
-				da = rotationAngle
-			} else {
-				da = -rotationAngle
-			}
-		} else if L < R {
-			// rotate right
-			da = rotationAngle
-		} else if R < L {
-			// rotate left
-			da = -rotationAngle
-		} else {
-			// straight
-		}
+
+		da := rotationAngle * direction(rnd, C, L, R)
+		// da := rotationAngle * weightedDirection(rnd, C, L, R)
 		p.A = Shift(p.A+da, 2*math.Pi)
 		p.X = Shift(p.X+cos(p.A)*stepDistance, float32(m.W))
 		p.Y = Shift(p.Y+sin(p.A)*stepDistance, float32(m.H))
@@ -90,7 +74,6 @@ func (m *Model) Step() {
 	}
 
 	updateParticles := func(wi, wn int, ch chan bool) {
-		// seed := time.Now().UTC().UnixNano()
 		seed := int64(m.Iterations)<<8 | int64(wi)
 		rnd := rand.New(rand.NewSource(seed))
 		n := len(m.Particles)
@@ -139,4 +122,42 @@ func (m *Model) Data() [][]float32 {
 		copy(result[i], grid.Data)
 	}
 	return result
+}
+
+func direction(rnd *rand.Rand, C, L, R float32) float32 {
+	if C > L && C > R {
+		return 0
+	} else if C < L && C < R {
+		return float32((rnd.Int63()&1)<<1 - 1)
+	} else if L < R {
+		return 1
+	} else if R < L {
+		return -1
+	}
+	return 0
+}
+
+func weightedDirection(rnd *rand.Rand, C, L, R float32) float32 {
+	W := [3]float32{C, L, R}
+	D := [3]float32{0, -1, 1}
+
+	if W[0] > W[1] {
+		W[0], W[1] = W[1], W[0]
+		D[0], D[1] = D[1], D[0]
+	}
+	if W[0] > W[2] {
+		W[0], W[2] = W[2], W[0]
+		D[0], D[2] = D[2], D[0]
+	}
+	if W[1] > W[2] {
+		W[1], W[2] = W[2], W[1]
+		D[1], D[2] = D[2], D[1]
+	}
+
+	a := W[1] - W[0]
+	b := W[2] - W[1]
+	if rnd.Float32()*(a+b) < a {
+		return D[1]
+	}
+	return D[2]
 }
