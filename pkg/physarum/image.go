@@ -5,29 +5,12 @@ import (
 	"image"
 	"image/color"
 	"math"
-	"math/rand"
 	"sort"
 
 	"github.com/gonum/stat"
 )
 
-var DefaultPalette = []color.RGBA{
-	HexColor(0xFA2B31),
-	HexColor(0xFFBF1F),
-	HexColor(0xFFF146),
-	HexColor(0xABE319),
-	HexColor(0x00C481),
-}
-
-func ShuffledPalette(palette []color.RGBA) []color.RGBA {
-	result := make([]color.RGBA, len(palette))
-	for i, j := range rand.Perm(len(result)) {
-		result[i] = palette[j]
-	}
-	return result
-}
-
-func Image(w, h int, grids [][]float32, palette []color.RGBA, min, max, gamma float32) image.Image {
+func Image(w, h int, grids [][]float32, palette Palette, min, max, gamma float32) image.Image {
 	im := image.NewRGBA(image.Rect(0, 0, w, h))
 
 	minValues := make([]float32, len(grids))

@@ -19,13 +19,13 @@ func one(model *Model, iterations int) {
 	for i := 0; i < iterations; i++ {
 		model.Step()
 	}
-	palette := ShuffledPalette(DefaultPalette)
+	palette := RandomPalette()
 	im := Image(model.W, model.H, model.Data(), palette, 0, 0, 1/2.2)
 	SavePNG(path, im, png.DefaultCompression)
 }
 
 func frames(model *Model, rate int) {
-	palette := ShuffledPalette(DefaultPalette)
+	palette := RandomPalette()
 
 	saveImage := func(path string, w, h int, grids [][]float32, ch chan bool) {
 		im := Image(w, h, grids, palette, 0, 10, 1/2.2)
