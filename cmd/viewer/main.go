@@ -22,6 +22,16 @@ const (
 	title     = "physarum"
 )
 
+var Configs = []physarum.Config{
+	// cyclones
+	// 	{4, 0.87946403, 42.838207, 0.97047323, 2.8447638, 5, 0.29681, 1.4512},
+	// 	{4, 1.7357124, 17.430664, 0.30490428, 2.1706762, 5, 0.27878627, 0.46232897},
+
+	// dunes
+	// {2, 0.99931663, 44.21652, 1.9704952, 1.4215798, 5, 0.1580779, 0.7574965},
+	// {2, 1.9694986, 1.294038, 0.5384646, 1.1613986, 5, 0.21102181, 1.5123861},
+}
+
 func init() {
 	runtime.LockOSThread()
 }
@@ -48,7 +58,7 @@ func NewTexture() *Texture {
 }
 
 func (t *Texture) Init(width, height, count int, palette physarum.Palette, gamma float32) {
-	const N = 256
+	const N = 65536
 	t.buf = make([]uint8, width*height*3)
 	t.acc = make([]float32, width*height*3)
 	t.r = make([][]float32, count)
@@ -70,16 +80,21 @@ func (t *Texture) Init(width, height, count int, palette physarum.Palette, gamma
 }
 
 func (t *Texture) update(data [][]float32) {
-	const lo = 0
-	const hi = 20
+	minValues := make([]float32, len(data))
+	maxValues := make([]float32, len(data))
+	for i := range maxValues {
+		maxValues[i] = 30
+	}
+
 	for i := range t.acc {
 		t.acc[i] = 0
 	}
 	f := float32(len(t.r[0]) - 1)
-	m := 1 / float32(hi-lo)
 	for i, grid := range data {
+		min, max := minValues[i], maxValues[i]
+		m := 1 / float32(max-min) // float32(len(minValues))
 		for j, value := range grid {
-			p := (value - lo) * m
+			p := (value - min) * m
 			if p < 0 {
 				p = 0
 			}
@@ -137,9 +152,11 @@ func (t *Texture) Draw(window *glfw.Window, data [][]float32) {
 }
 
 func makeModel() *physarum.Model {
-	count := 2 + rand.Intn(4)
-	configs := physarum.RandomConfigs(count)
-	pct := particles / float32(width*height*count)
+	configs := physarum.RandomConfigs(2 + rand.Intn(4))
+	if len(Configs) > 0 {
+		configs = Configs
+	}
+	pct := particles / float32(width*height*len(configs))
 	for i := range configs {
 		configs[i].PopulationPercentage = pct
 	}
