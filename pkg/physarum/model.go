@@ -89,7 +89,7 @@ func (m *Model) Step() {
 				grid.Add(p.X, p.Y, config.DepositionAmount)
 			}
 		}
-		grid.BoxBlur(1, 1, config.DecayFactor)
+		grid.BoxBlur(1, 2, config.DecayFactor)
 		wg.Done()
 	}
 
