@@ -14,12 +14,12 @@ import (
 )
 
 const (
-	width  = 512
-	height = 512
-	pct    = 1
-	scale  = 1
-	gamma  = 1 / 2.2
-	title  = "physarum"
+	width     = 512
+	height    = 512
+	particles = 1 << 20
+	scale     = 1
+	gamma     = 1 / 2.2
+	title     = "physarum"
 )
 
 func init() {
@@ -139,6 +139,7 @@ func (t *Texture) Draw(window *glfw.Window, data [][]float32) {
 func makeModel() *physarum.Model {
 	count := 2 + rand.Intn(4)
 	configs := physarum.RandomConfigs(count)
+	pct := particles / float32(width*height*count)
 	for i := range configs {
 		configs[i].PopulationPercentage = pct
 	}
