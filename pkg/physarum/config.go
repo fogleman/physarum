@@ -16,13 +16,13 @@ type Config struct {
 }
 
 func RandomConfig() Config {
-	sensorAngle := rand.Float32() * Radians(90)
+	sensorAngle := rand.Float32() * Radians(120)
 	sensorDistance := rand.Float32() * 64
-	rotationAngle := rand.Float32() * Radians(90)
+	rotationAngle := rand.Float32() * Radians(120)
 	stepDistance := 0.5 + rand.Float32()*2.5
 	decayFactor := 0.1 + rand.Float32()*0.2
 	return Config{
-		PopulationPercentage: 0.5,
+		PopulationPercentage: 1,
 		SensorAngle:          sensorAngle,
 		SensorDistance:       sensorDistance,
 		RotationAngle:        rotationAngle,
