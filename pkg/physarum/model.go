@@ -69,7 +69,13 @@ func (m *Model) Step() {
 		seed := int64(m.Iterations)<<8 | int64(wi)
 		rnd := rand.New(rand.NewSource(seed))
 		n := len(m.Particles)
-		for i := wi; i < n; i += wn {
+		batch := int(math.Ceil(float64(n) / float64(wn)))
+		i0 := wi * batch
+		i1 := i0 + batch
+		if wi == wn-1 {
+			i1 = n
+		}
+		for i := i0; i < i1; i++ {
 			updateParticle(rnd, i)
 		}
 		wg.Done()
