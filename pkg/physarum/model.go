@@ -4,6 +4,7 @@ import (
 	"math"
 	"math/rand"
 	"runtime"
+	"sync"
 )
 
 type Model struct {
@@ -36,6 +37,7 @@ func (m *Model) Step() {
 	updateParticle := func(rnd *rand.Rand, i int) {
 		p := m.Particles[i]
 		config := m.Configs[p.C]
+		grid := m.Grids[p.C]
 
 		// u := p.X / float32(m.W)
 		// v := p.Y / float32(m.H)
@@ -44,7 +46,6 @@ func (m *Model) Step() {
 		sensorAngle := config.SensorAngle
 		rotationAngle := config.RotationAngle
 		stepDistance := config.StepDistance
-		repulsionFactor := config.RepulsionFactor
 
 		xc := p.X + cos(p.A)*sensorDistance
 		yc := p.Y + sin(p.A)*sensorDistance
@@ -52,18 +53,9 @@ func (m *Model) Step() {
 		yl := p.Y + sin(p.A-sensorAngle)*sensorDistance
 		xr := p.X + cos(p.A+sensorAngle)*sensorDistance
 		yr := p.Y + sin(p.A+sensorAngle)*sensorDistance
-		var C, L, R float32
-		for c, grid := range m.Grids {
-			if uint32(c) == p.C {
-				C += grid.Get(xc, yc)
-				L += grid.Get(xl, yl)
-				R += grid.Get(xr, yr)
-			} else {
-				C -= grid.Get(xc, yc) * repulsionFactor
-				L -= grid.Get(xl, yl) * repulsionFactor
-				R -= grid.Get(xr, yr) * repulsionFactor
-			}
-		}
+		C := grid.GetTemp(xc, yc)
+		L := grid.GetTemp(xl, yl)
+		R := grid.GetTemp(xr, yr)
 
 		da := rotationAngle * direction(rnd, C, L, R)
 		// da := rotationAngle * weightedDirection(rnd, C, L, R)
@@ -73,17 +65,17 @@ func (m *Model) Step() {
 		m.Particles[i] = p
 	}
 
-	updateParticles := func(wi, wn int, ch chan bool) {
+	updateParticles := func(wi, wn int, wg *sync.WaitGroup) {
 		seed := int64(m.Iterations)<<8 | int64(wi)
 		rnd := rand.New(rand.NewSource(seed))
 		n := len(m.Particles)
 		for i := wi; i < n; i += wn {
 			updateParticle(rnd, i)
 		}
-		ch <- true
+		wg.Done()
 	}
 
-	updateGrids := func(c int, ch chan bool) {
+	updateGrids := func(c int, wg *sync.WaitGroup) {
 		config := m.Configs[c]
 		grid := m.Grids[c]
 		for _, p := range m.Particles {
@@ -92,25 +84,48 @@ func (m *Model) Step() {
 			}
 		}
 		grid.BoxBlur(1, 1, config.DecayFactor)
-		ch <- true
+		wg.Done()
 	}
 
+	combineGrids := func(c int, wg *sync.WaitGroup) {
+		config := m.Configs[c]
+		grid := m.Grids[c]
+		repulsionFactor := config.RepulsionFactor
+		copy(grid.Temp, grid.Data)
+		for i, other := range m.Grids {
+			if i == c {
+				continue
+			}
+			for j, value := range other.Data {
+				grid.Temp[j] -= value * repulsionFactor
+			}
+		}
+		wg.Done()
+	}
+
+	var wg sync.WaitGroup
+
+	// step 1: combine grids
+	for i := range m.Configs {
+		wg.Add(1)
+		go combineGrids(i, &wg)
+	}
+	wg.Wait()
+
+	// step 2: move particles
 	wn := runtime.NumCPU()
-	ch := make(chan bool, wn)
 	for wi := 0; wi < wn; wi++ {
-		go updateParticles(wi, wn, ch)
+		wg.Add(1)
+		go updateParticles(wi, wn, &wg)
 	}
-	for wi := 0; wi < wn; wi++ {
-		<-ch
-	}
+	wg.Wait()
 
-	wn = len(m.Configs)
-	for wi := 0; wi < wn; wi++ {
-		go updateGrids(wi, ch)
+	// step 3: deposit, blur, and decay
+	for i := range m.Configs {
+		wg.Add(1)
+		go updateGrids(i, &wg)
 	}
-	for wi := 0; wi < wn; wi++ {
-		<-ch
-	}
+	wg.Wait()
 
 	m.Iterations++
 }

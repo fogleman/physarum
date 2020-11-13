@@ -31,6 +31,13 @@ func (g *Grid) Get(x, y float32) float32 {
 	return g.Data[index]
 }
 
+func (g *Grid) GetTemp(x, y float32) float32 {
+	i := int(x+float32(g.W)) & (g.W - 1)
+	j := int(y+float32(g.H)) & (g.H - 1)
+	index := j*g.W + i
+	return g.Temp[index]
+}
+
 func (g *Grid) Add(x, y, a float32) {
 	x += float32(g.W)
 	y += float32(g.H)
