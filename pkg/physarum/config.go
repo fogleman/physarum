@@ -43,6 +43,20 @@ func RandomConfigs(n int) []Config {
 	return configs
 }
 
+func PrintConfigs(configs []Config) {
+	for _, c := range configs {
+		fmt.Printf("Config{%v, %v, %v, %v, %v, %v, %v, %v},\n",
+			c.PopulationPercentage,
+			c.SensorAngle,
+			c.SensorDistance,
+			c.RotationAngle,
+			c.StepDistance,
+			c.DepositionAmount,
+			c.DecayFactor,
+			c.RepulsionFactor)
+	}
+}
+
 func SummarizeConfigs(configs []Config) {
 	summarize := func(name string, getter func(i int) float32) {
 		fmt.Printf("%s ", name)
