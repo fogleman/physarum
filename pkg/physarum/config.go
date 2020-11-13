@@ -13,6 +13,7 @@ type Config struct {
 	StepDistance         float32
 	DepositionAmount     float32
 	DecayFactor          float32
+	RepulsionFactor      float32
 }
 
 func RandomConfig() Config {
@@ -21,6 +22,7 @@ func RandomConfig() Config {
 	rotationAngle := rand.Float32() * Radians(120)
 	stepDistance := 0.5 + rand.Float32()*2.5
 	decayFactor := 0.1 + rand.Float32()*0.2
+	repulsionFactor := 1 + float32(rand.NormFloat64())*0.5
 	return Config{
 		PopulationPercentage: 1,
 		SensorAngle:          sensorAngle,
@@ -29,6 +31,7 @@ func RandomConfig() Config {
 		StepDistance:         stepDistance,
 		DepositionAmount:     5,
 		DecayFactor:          decayFactor,
+		RepulsionFactor:      repulsionFactor,
 	}
 }
 
@@ -43,7 +46,7 @@ func RandomConfigs(n int) []Config {
 func SummarizeConfigs(configs []Config) {
 	summarize := func(name string, getter func(i int) float32) {
 		fmt.Printf("%s ", name)
-		for i := 0; i < 17-len(name); i++ {
+		for i := 0; i < 18-len(name); i++ {
 			fmt.Printf(".")
 		}
 		for i := range configs {
@@ -69,5 +72,8 @@ func SummarizeConfigs(configs []Config) {
 	})
 	summarize("DecayFactor", func(i int) float32 {
 		return configs[i].DecayFactor
+	})
+	summarize("RepulsionFactor", func(i int) float32 {
+		return configs[i].RepulsionFactor
 	})
 }

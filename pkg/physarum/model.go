@@ -44,6 +44,7 @@ func (m *Model) Step() {
 		sensorAngle := config.SensorAngle
 		rotationAngle := config.RotationAngle
 		stepDistance := config.StepDistance
+		repulsionFactor := config.RepulsionFactor
 
 		xc := p.X + cos(p.A)*sensorDistance
 		yc := p.Y + sin(p.A)*sensorDistance
@@ -58,9 +59,9 @@ func (m *Model) Step() {
 				L += grid.Get(xl, yl)
 				R += grid.Get(xr, yr)
 			} else {
-				C -= grid.Get(xc, yc)
-				L -= grid.Get(xl, yl)
-				R -= grid.Get(xr, yr)
+				C -= grid.Get(xc, yc) * repulsionFactor
+				L -= grid.Get(xl, yl) * repulsionFactor
+				R -= grid.Get(xr, yr) * repulsionFactor
 			}
 		}
 		var da float32
