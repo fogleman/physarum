@@ -85,10 +85,11 @@ func (t *Texture) Init(width, height, count int, palette physarum.Palette, gamma
 }
 
 func (t *Texture) update(data [][]float32) {
+	max := particles / float32(width*height) * 20
 	minValues := make([]float32, len(data))
 	maxValues := make([]float32, len(data))
 	for i := range maxValues {
-		maxValues[i] = 30
+		maxValues[i] = max
 	}
 
 	for i := range t.acc {
