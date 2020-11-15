@@ -5,6 +5,23 @@ import (
 	"math/rand"
 )
 
+const (
+	sensorAngleMin      = 0
+	sensorAngleMax      = 120
+	sensorDistanceMin   = 0
+	sensorDistanceMax   = 64
+	rotationAngleMin    = 0
+	rotationAngleMax    = 120
+	stepDistanceMin     = 0.5
+	stepDistanceMax     = 5
+	depositionAmountMin = 5
+	depositionAmountMax = 5
+	decayFactorMin      = 0.1
+	decayFactorMax      = 0.3
+	repulsionFactorMean = 1
+	repulsionFactorStd  = 0.5
+)
+
 type Config struct {
 	SensorAngle      float32
 	SensorDistance   float32
@@ -16,18 +33,28 @@ type Config struct {
 }
 
 func RandomConfig() Config {
-	sensorAngle := rand.Float32() * Radians(120)
-	sensorDistance := rand.Float32() * 64
-	rotationAngle := rand.Float32() * Radians(120)
-	stepDistance := 0.5 + rand.Float32()*2.5
-	decayFactor := 0.1 + rand.Float32()*0.2
-	repulsionFactor := 1 + float32(rand.NormFloat64())*0.5
+	uniform := func(min, max float32) float32 {
+		return min + rand.Float32()*(max-min)
+	}
+
+	normal := func(mean, std float32) float32 {
+		return mean + float32(rand.NormFloat64())*std
+	}
+
+	sensorAngle := Radians(uniform(sensorAngleMin, sensorAngleMax))
+	sensorDistance := uniform(sensorDistanceMin, sensorDistanceMax)
+	rotationAngle := Radians(uniform(rotationAngleMin, rotationAngleMax))
+	stepDistance := uniform(stepDistanceMin, stepDistanceMax)
+	depositionAmount := uniform(depositionAmountMin, depositionAmountMax)
+	decayFactor := uniform(decayFactorMin, decayFactorMax)
+	repulsionFactor := normal(repulsionFactorMean, repulsionFactorStd)
+
 	return Config{
 		SensorAngle:      sensorAngle,
 		SensorDistance:   sensorDistance,
 		RotationAngle:    rotationAngle,
 		StepDistance:     stepDistance,
-		DepositionAmount: 5,
+		DepositionAmount: depositionAmount,
 		DecayFactor:      decayFactor,
 		RepulsionFactor:  repulsionFactor,
 	}
