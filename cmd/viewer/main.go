@@ -14,12 +14,14 @@ import (
 )
 
 const (
-	width     = 512
-	height    = 512
-	particles = 1 << 20
-	scale     = 1
-	gamma     = 1 / 2.2
-	title     = "physarum"
+	width      = 512
+	height     = 512
+	particles  = 1 << 20
+	blurRadius = 1
+	blurPasses = 2
+	scale      = 1
+	gamma      = 1 / 2.2
+	title      = "physarum"
 )
 
 var Configs = []physarum.Config{
@@ -169,7 +171,8 @@ func makeModel() *physarum.Model {
 	if len(Configs) > 0 {
 		configs = Configs
 	}
-	model := physarum.NewModel(width, height, particles, configs)
+	model := physarum.NewModel(
+		width, height, particles, blurRadius, blurPasses, configs)
 	physarum.PrintConfigs(model.Configs)
 	physarum.SummarizeConfigs(model.Configs)
 	fmt.Println()

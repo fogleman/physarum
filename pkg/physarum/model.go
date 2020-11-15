@@ -8,15 +8,20 @@ import (
 )
 
 type Model struct {
-	W          int
-	H          int
-	Iterations int
-	Configs    []Config
-	Grids      []*Grid
-	Particles  []Particle
+	W int
+	H int
+
+	BlurRadius int
+	BlurPasses int
+
+	Configs   []Config
+	Grids     []*Grid
+	Particles []Particle
+
+	Iteration int
 }
 
-func NewModel(w, h, numParticles int, configs []Config) *Model {
+func NewModel(w, h, numParticles, blurRadius, blurPasses int, configs []Config) *Model {
 	grids := make([]*Grid, len(configs))
 	numParticlesPerConfig := int(math.Ceil(
 		float64(numParticles) / float64(len(configs))))
@@ -32,7 +37,7 @@ func NewModel(w, h, numParticles int, configs []Config) *Model {
 			particles = append(particles, p)
 		}
 	}
-	return &Model{w, h, 0, configs, grids, particles}
+	return &Model{w, h, blurRadius, blurPasses, configs, grids, particles, 0}
 }
 
 func (m *Model) Step() {
@@ -68,7 +73,7 @@ func (m *Model) Step() {
 	}
 
 	updateParticles := func(wi, wn int, wg *sync.WaitGroup) {
-		seed := int64(m.Iterations)<<8 | int64(wi)
+		seed := int64(m.Iteration)<<8 | int64(wi)
 		rnd := rand.New(rand.NewSource(seed))
 		n := len(m.Particles)
 		batch := int(math.Ceil(float64(n) / float64(wn)))
@@ -91,7 +96,7 @@ func (m *Model) Step() {
 				grid.Add(p.X, p.Y, config.DepositionAmount)
 			}
 		}
-		grid.BoxBlur(1, 2, config.DecayFactor)
+		grid.BoxBlur(m.BlurRadius, m.BlurPasses, config.DecayFactor)
 		wg.Done()
 	}
 
@@ -135,7 +140,7 @@ func (m *Model) Step() {
 	}
 	wg.Wait()
 
-	m.Iterations++
+	m.Iteration++
 }
 
 func (m *Model) Data() [][]float32 {

@@ -7,9 +7,11 @@ import (
 )
 
 const (
-	width     = 1024
-	height    = 1024
-	particles = 1 << 20
+	width      = 1024
+	height     = 1024
+	particles  = 1 << 20
+	blurRadius = 1
+	blurPasses = 2
 )
 
 func one(model *Model, iterations int) {
@@ -55,13 +57,15 @@ func frames(model *Model, rate int) {
 func Run() {
 	if false {
 		configs := RandomConfigs(3)
-		model := NewModel(width, height, particles, configs)
+		model := NewModel(
+			width, height, particles, blurRadius, blurPasses, configs)
 		frames(model, 4)
 	}
 
 	for {
 		configs := RandomConfigs(3)
-		model := NewModel(width, height, particles, configs)
+		model := NewModel(
+			width, height, particles, blurRadius, blurPasses, configs)
 		start := time.Now()
 		one(model, 500)
 		fmt.Println(time.Since(start))
