@@ -161,11 +161,7 @@ func makeModel() *physarum.Model {
 	if len(Configs) > 0 {
 		configs = Configs
 	}
-	pct := particles / float32(width*height*len(configs))
-	for i := range configs {
-		configs[i].PopulationPercentage = pct
-	}
-	model := physarum.NewModel(width, height, configs)
+	model := physarum.NewModel(width, height, particles, configs)
 	physarum.PrintConfigs(model.Configs)
 	physarum.SummarizeConfigs(model.Configs)
 	fmt.Println()

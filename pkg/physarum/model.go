@@ -16,13 +16,15 @@ type Model struct {
 	Particles  []Particle
 }
 
-func NewModel(w, h int, configs []Config) *Model {
+func NewModel(w, h, numParticles int, configs []Config) *Model {
 	grids := make([]*Grid, len(configs))
-	var particles []Particle
-	for c, config := range configs {
+	numParticlesPerConfig := int(math.Ceil(
+		float64(numParticles) / float64(len(configs))))
+	actualNumParticles := numParticlesPerConfig * len(configs)
+	particles := make([]Particle, 0, actualNumParticles)
+	for c := range configs {
 		grids[c] = NewGrid(w, h)
-		numParticles := int(float32(w*h) * config.PopulationPercentage)
-		for i := 0; i < numParticles; i++ {
+		for i := 0; i < numParticlesPerConfig; i++ {
 			x := rand.Float32() * float32(w)
 			y := rand.Float32() * float32(h)
 			a := rand.Float32() * 2 * math.Pi

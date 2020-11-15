@@ -6,6 +6,12 @@ import (
 	"time"
 )
 
+const (
+	width     = 1024
+	height    = 1024
+	particles = 1 << 20
+)
+
 func one(model *Model, iterations int) {
 	now := time.Now().UTC().UnixNano() / 1000
 	path := fmt.Sprintf("out%d.png", now)
@@ -49,13 +55,13 @@ func frames(model *Model, rate int) {
 func Run() {
 	if false {
 		configs := RandomConfigs(3)
-		model := NewModel(1024, 1024, configs)
+		model := NewModel(width, height, particles, configs)
 		frames(model, 4)
 	}
 
 	for {
 		configs := RandomConfigs(3)
-		model := NewModel(1024, 1024, configs)
+		model := NewModel(width, height, particles, configs)
 		start := time.Now()
 		one(model, 500)
 		fmt.Println(time.Since(start))

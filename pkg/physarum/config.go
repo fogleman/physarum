@@ -6,14 +6,13 @@ import (
 )
 
 type Config struct {
-	PopulationPercentage float32
-	SensorAngle          float32
-	SensorDistance       float32
-	RotationAngle        float32
-	StepDistance         float32
-	DepositionAmount     float32
-	DecayFactor          float32
-	RepulsionFactor      float32
+	SensorAngle      float32
+	SensorDistance   float32
+	RotationAngle    float32
+	StepDistance     float32
+	DepositionAmount float32
+	DecayFactor      float32
+	RepulsionFactor  float32
 }
 
 func RandomConfig() Config {
@@ -24,14 +23,13 @@ func RandomConfig() Config {
 	decayFactor := 0.1 + rand.Float32()*0.2
 	repulsionFactor := 1 + float32(rand.NormFloat64())*0.5
 	return Config{
-		PopulationPercentage: 1,
-		SensorAngle:          sensorAngle,
-		SensorDistance:       sensorDistance,
-		RotationAngle:        rotationAngle,
-		StepDistance:         stepDistance,
-		DepositionAmount:     5,
-		DecayFactor:          decayFactor,
-		RepulsionFactor:      repulsionFactor,
+		SensorAngle:      sensorAngle,
+		SensorDistance:   sensorDistance,
+		RotationAngle:    rotationAngle,
+		StepDistance:     stepDistance,
+		DepositionAmount: 5,
+		DecayFactor:      decayFactor,
+		RepulsionFactor:  repulsionFactor,
 	}
 }
 
@@ -45,8 +43,7 @@ func RandomConfigs(n int) []Config {
 
 func PrintConfigs(configs []Config) {
 	for _, c := range configs {
-		fmt.Printf("Config{%v, %v, %v, %v, %v, %v, %v, %v},\n",
-			c.PopulationPercentage,
+		fmt.Printf("Config{%v, %v, %v, %v, %v, %v, %v},\n",
 			c.SensorAngle,
 			c.SensorDistance,
 			c.RotationAngle,
