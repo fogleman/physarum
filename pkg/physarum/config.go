@@ -12,12 +12,12 @@ const (
 	sensorDistanceMax   = 64
 	rotationAngleMin    = 0
 	rotationAngleMax    = 120
-	stepDistanceMin     = 0.5
-	stepDistanceMax     = 5
+	stepDistanceMin     = 0.2
+	stepDistanceMax     = 2
 	depositionAmountMin = 5
 	depositionAmountMax = 5
 	decayFactorMin      = 0.1
-	decayFactorMax      = 0.3
+	decayFactorMax      = 0.5
 	repulsionFactorMean = 1
 	repulsionFactorStd  = 0.5
 )
