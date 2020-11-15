@@ -43,6 +43,12 @@ func (g *Grid) Add(x, y, a float32) {
 }
 
 func (g *Grid) BoxBlur(radius, iterations int, decayFactor float32) {
+	if iterations < 1 {
+		for i := range g.Data {
+			g.Data[i] *= decayFactor
+		}
+		return
+	}
 	for i := 1; i < iterations; i++ {
 		boxBlur(g.Data, g.Temp, g.W, g.H, radius, 1)
 	}
