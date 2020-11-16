@@ -26,18 +26,25 @@ func NewModel(w, h, numParticles, blurRadius, blurPasses int, configs []Config) 
 	numParticlesPerConfig := int(math.Ceil(
 		float64(numParticles) / float64(len(configs))))
 	actualNumParticles := numParticlesPerConfig * len(configs)
-	particles := make([]Particle, 0, actualNumParticles)
-	for c := range configs {
-		grids[c] = NewGrid(w, h)
+	particles := make([]Particle, actualNumParticles)
+	m := &Model{w, h, blurRadius, blurPasses, configs, grids, particles, 0}
+	m.StartOver()
+	return m
+}
+
+func (m *Model) StartOver() {
+	numParticlesPerConfig := len(m.Particles) / len(m.Configs)
+	m.Particles = m.Particles[:0]
+	for c := range m.Configs {
+		m.Grids[c] = NewGrid(m.W, m.H)
 		for i := 0; i < numParticlesPerConfig; i++ {
-			x := rand.Float32() * float32(w)
-			y := rand.Float32() * float32(h)
+			x := rand.Float32() * float32(m.W)
+			y := rand.Float32() * float32(m.H)
 			a := rand.Float32() * 2 * math.Pi
 			p := Particle{x, y, a, uint32(c)}
-			particles = append(particles, p)
+			m.Particles = append(m.Particles, p)
 		}
 	}
-	return &Model{w, h, blurRadius, blurPasses, configs, grids, particles, 0}
 }
 
 func (m *Model) Step() {

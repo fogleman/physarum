@@ -3,6 +3,7 @@ package physarum
 import (
 	"fmt"
 	"image/png"
+	"math/rand"
 	"time"
 )
 
@@ -10,6 +11,7 @@ const (
 	width      = 1024
 	height     = 1024
 	particles  = 1 << 20
+	iterations = 500
 	blurRadius = 1
 	blurPasses = 2
 )
@@ -34,7 +36,8 @@ func frames(model *Model, rate int) {
 	palette := RandomPalette()
 
 	saveImage := func(path string, w, h int, grids [][]float32, ch chan bool) {
-		im := Image(w, h, grids, palette, 0, 10, 1/2.2)
+		max := particles / float32(width*height) * 20
+		im := Image(w, h, grids, palette, 0, max, 1/2.2)
 		SavePNG(path, im, png.BestSpeed)
 		if ch != nil {
 			ch <- true
@@ -56,18 +59,20 @@ func frames(model *Model, rate int) {
 
 func Run() {
 	if false {
-		configs := RandomConfigs(3)
+		n := 2 + rand.Intn(4)
+		configs := RandomConfigs(n)
 		model := NewModel(
 			width, height, particles, blurRadius, blurPasses, configs)
-		frames(model, 4)
+		frames(model, 3)
 	}
 
 	for {
-		configs := RandomConfigs(3)
+		n := 2 + rand.Intn(4)
+		configs := RandomConfigs(n)
 		model := NewModel(
 			width, height, particles, blurRadius, blurPasses, configs)
 		start := time.Now()
-		one(model, 500)
+		one(model, iterations)
 		fmt.Println(time.Since(start))
 	}
 }

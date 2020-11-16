@@ -6,11 +6,13 @@ import (
 	"math"
 	"math/rand"
 	"runtime"
+	"sort"
 	"time"
 
 	"github.com/fogleman/physarum/pkg/physarum"
 	"github.com/go-gl/gl/v2.1/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
+	"github.com/gonum/stat"
 )
 
 const (
@@ -57,6 +59,8 @@ type Texture struct {
 	r   [][]float32
 	g   [][]float32
 	b   [][]float32
+	min []float32
+	max []float32
 }
 
 func NewTexture() *Texture {
@@ -82,9 +86,24 @@ func (t *Texture) Init(width, height, count int, palette physarum.Palette, gamma
 		t.r[i] = make([]float32, N)
 		t.g[i] = make([]float32, N)
 		t.b[i] = make([]float32, N)
+	}
+	t.ChangePalette(palette, gamma)
+	max := particles / float32(width*height) * 10
+	t.min = make([]float32, count)
+	t.max = make([]float32, count)
+	for i := range t.min {
+		t.min[i] = 0
+		t.max[i] = max
+	}
+}
+
+func (t *Texture) ChangePalette(palette physarum.Palette, gamma float32) {
+	count := len(t.r)
+	N := len(t.r[0])
+	for i := 0; i < count; i++ {
 		c := palette[i]
 		for j := 0; j < N; j++ {
-			p := float32(j) / (N - 1)
+			p := float32(j) / float32(N-1)
 			p = float32(math.Pow(float64(p), float64(gamma)))
 			t.r[i][j] = float32(c.R) * p
 			t.g[i][j] = float32(c.G) * p
@@ -93,21 +112,26 @@ func (t *Texture) Init(width, height, count int, palette physarum.Palette, gamma
 	}
 }
 
-func (t *Texture) update(data [][]float32) {
-	max := particles / float32(width*height) * 20
-	minValues := make([]float32, len(data))
-	maxValues := make([]float32, len(data))
-	for i := range maxValues {
-		maxValues[i] = max
+func (t *Texture) AutoLevel(data [][]float32, minPercentile, maxPercentile float64) {
+	for i, grid := range data {
+		temp := make([]float64, len(grid))
+		for j, v := range grid {
+			temp[j] = float64(v)
+		}
+		sort.Float64s(temp)
+		t.min[i] = float32(stat.Quantile(minPercentile, stat.Empirical, temp, nil))
+		t.max[i] = float32(stat.Quantile(maxPercentile, stat.Empirical, temp, nil))
 	}
+}
 
+func (t *Texture) update(data [][]float32) {
 	for i := range t.acc {
 		t.acc[i] = 0
 	}
 	f := float32(len(t.r[0]) - 1)
 	for i, grid := range data {
-		min, max := minValues[i], maxValues[i]
-		m := 1 / float32(max-min) // float32(len(minValues))
+		min, max := t.min[i], t.max[i]
+		m := 1 / float32(max-min)
 		for j, value := range grid {
 			p := (value - min) * m
 			if p < 0 {
@@ -204,9 +228,8 @@ func main() {
 	}
 	gl.Enable(gl.TEXTURE_2D)
 
-	texture := NewTexture()
-
 	var model *physarum.Model
+	texture := NewTexture()
 
 	reset := func() {
 		model = makeModel()
@@ -218,8 +241,19 @@ func main() {
 	reset()
 
 	window.SetKeyCallback(func(window *glfw.Window, key glfw.Key, code int, action glfw.Action, mods glfw.ModifierKey) {
-		if action == glfw.Press && key == glfw.KeySpace {
-			reset()
+		if action == glfw.Press {
+			if key == glfw.KeySpace {
+				reset()
+			}
+			if key == glfw.KeyR {
+				model.StartOver()
+			}
+			if key == glfw.KeyP {
+				texture.ChangePalette(physarum.RandomPalette(), gamma)
+			}
+			if key == glfw.KeyA {
+				texture.AutoLevel(model.Data(), 0.001, 0.999)
+			}
 		}
 	})
 
