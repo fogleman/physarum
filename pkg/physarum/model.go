@@ -35,6 +35,7 @@ func NewModel(w, h, numParticles, blurRadius, blurPasses int, configs []Config) 
 func (m *Model) StartOver() {
 	numParticlesPerConfig := len(m.Particles) / len(m.Configs)
 	m.Particles = m.Particles[:0]
+	m.Iteration = 0
 	for c := range m.Configs {
 		m.Grids[c] = NewGrid(m.W, m.H)
 		for i := 0; i < numParticlesPerConfig; i++ {

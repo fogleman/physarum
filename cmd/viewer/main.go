@@ -75,7 +75,7 @@ func NewTexture() *Texture {
 	return &Texture{id: id}
 }
 
-func (t *Texture) Init(width, height, count int, palette physarum.Palette, gamma float32) {
+func (t *Texture) Init(width, height, count int) {
 	const N = 65536
 	t.buf = make([]uint8, width*height*3)
 	t.acc = make([]float32, width*height*3)
@@ -87,7 +87,6 @@ func (t *Texture) Init(width, height, count int, palette physarum.Palette, gamma
 		t.g[i] = make([]float32, N)
 		t.b[i] = make([]float32, N)
 	}
-	t.ChangePalette(palette, gamma)
 	max := particles / float32(width*height) * 10
 	t.min = make([]float32, count)
 	t.max = make([]float32, count)
@@ -97,7 +96,7 @@ func (t *Texture) Init(width, height, count int, palette physarum.Palette, gamma
 	}
 }
 
-func (t *Texture) ChangePalette(palette physarum.Palette, gamma float32) {
+func (t *Texture) SetPalette(palette physarum.Palette, gamma float32) {
 	count := len(t.r)
 	N := len(t.r[0])
 	for i := 0; i < count; i++ {
@@ -233,9 +232,8 @@ func main() {
 
 	reset := func() {
 		model = makeModel()
-		texture.Init(
-			width, height, len(model.Configs),
-			physarum.RandomPalette(), gamma)
+		texture.Init(width, height, len(model.Configs))
+		texture.SetPalette(physarum.RandomPalette(), gamma)
 	}
 
 	reset()
@@ -249,7 +247,7 @@ func main() {
 				model.StartOver()
 			}
 			if key == glfw.KeyP {
-				texture.ChangePalette(physarum.RandomPalette(), gamma)
+				texture.SetPalette(physarum.RandomPalette(), gamma)
 			}
 			if key == glfw.KeyA {
 				texture.AutoLevel(model.Data(), 0.001, 0.999)
