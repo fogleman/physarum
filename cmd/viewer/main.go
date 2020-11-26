@@ -21,6 +21,7 @@ const (
 	particles  = 1 << 20
 	blurRadius = 1
 	blurPasses = 2
+	zoomFactor = 1
 	scale      = 1
 	gamma      = 1 / 2.2
 	title      = "physarum"
@@ -46,6 +47,13 @@ var Configs = []physarum.Config{
 	// {0.0049473564, 13.269191, 0.033447478, 1.0102618, 5, 0.2197167, 1.6166985},
 	// {0.37645763, 31.045816, 0.81319964, 2.5322618, 5, 0.10834738, 1.5170672},
 	// {0.7355474, 14.832715, 0.2641479, 0.8953786, 5, 0.14977153, 0.14632958},
+
+	// cool
+	// {1.4107815, 61.27741, 0.49201587, 1.3007548, 5, 0.49895996, 1.0823951},
+	// {1.1534524, 13.299458, 0.48315683, 1.8219115, 5, 0.41845483, 0.4055887},
+	// {0.31089303, 60.62575, 1.0241486, 0.39942655, 5, 0.4576149, 0.24079543},
+	// {0.40245488, 27.844227, 1.9592205, 0.5504824, 5, 0.19568197, 1.1694417},
+	// {1.227412, 1.7987814, 0.39546785, 1.2640203, 5, 0.14201605, 0.77068233},
 }
 
 func init() {
@@ -109,6 +117,15 @@ func (t *Texture) SetPalette(palette physarum.Palette, gamma float32) {
 			t.b[i][j] = float32(c.B) * p
 		}
 	}
+	palette.Print()
+}
+
+func (t *Texture) ShufflePalette() {
+	rand.Shuffle(len(t.r), func(i, j int) {
+		t.r[i], t.r[j] = t.r[j], t.r[i]
+		t.g[i], t.g[j] = t.g[j], t.g[i]
+		t.b[i], t.b[j] = t.b[j], t.b[i]
+	})
 }
 
 func (t *Texture) AutoLevel(data [][]float32, minPercentile, maxPercentile float64) {
@@ -195,7 +212,7 @@ func makeModel() *physarum.Model {
 		configs = Configs
 	}
 	model := physarum.NewModel(
-		width, height, particles, blurRadius, blurPasses, configs)
+		width, height, particles, blurRadius, blurPasses, zoomFactor, configs)
 	physarum.PrintConfigs(model.Configs)
 	physarum.SummarizeConfigs(model.Configs)
 	fmt.Println()
@@ -248,6 +265,9 @@ func main() {
 			}
 			if key == glfw.KeyP {
 				texture.SetPalette(physarum.RandomPalette(), gamma)
+			}
+			if key == glfw.KeyO {
+				texture.ShufflePalette()
 			}
 			if key == glfw.KeyA {
 				texture.AutoLevel(model.Data(), 0.001, 0.999)

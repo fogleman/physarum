@@ -14,6 +14,8 @@ type Model struct {
 	BlurRadius int
 	BlurPasses int
 
+	ZoomFactor float32
+
 	Configs   []Config
 	Grids     []*Grid
 	Particles []Particle
@@ -21,13 +23,13 @@ type Model struct {
 	Iteration int
 }
 
-func NewModel(w, h, numParticles, blurRadius, blurPasses int, configs []Config) *Model {
+func NewModel(w, h, numParticles, blurRadius, blurPasses int, zoomFactor float32, configs []Config) *Model {
 	grids := make([]*Grid, len(configs))
 	numParticlesPerConfig := int(math.Ceil(
 		float64(numParticles) / float64(len(configs))))
 	actualNumParticles := numParticlesPerConfig * len(configs)
 	particles := make([]Particle, actualNumParticles)
-	m := &Model{w, h, blurRadius, blurPasses, configs, grids, particles, 0}
+	m := &Model{w, h, blurRadius, blurPasses, zoomFactor, configs, grids, particles, 0}
 	m.StartOver()
 	return m
 }
@@ -57,10 +59,10 @@ func (m *Model) Step() {
 		// u := p.X / float32(m.W)
 		// v := p.Y / float32(m.H)
 
-		sensorDistance := config.SensorDistance
+		sensorDistance := config.SensorDistance * m.ZoomFactor
 		sensorAngle := config.SensorAngle
 		rotationAngle := config.RotationAngle
-		stepDistance := config.StepDistance
+		stepDistance := config.StepDistance * m.ZoomFactor
 
 		xc := p.X + cos(p.A)*sensorDistance
 		yc := p.Y + sin(p.A)*sensorDistance

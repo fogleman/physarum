@@ -14,6 +14,7 @@ const (
 	iterations = 500
 	blurRadius = 1
 	blurPasses = 2
+	zoomFactor = 1
 )
 
 func one(model *Model, iterations int) {
@@ -62,7 +63,7 @@ func Run() {
 		n := 2 + rand.Intn(4)
 		configs := RandomConfigs(n)
 		model := NewModel(
-			width, height, particles, blurRadius, blurPasses, configs)
+			width, height, particles, blurRadius, blurPasses, zoomFactor, configs)
 		frames(model, 3)
 	}
 
@@ -70,7 +71,7 @@ func Run() {
 		n := 2 + rand.Intn(4)
 		configs := RandomConfigs(n)
 		model := NewModel(
-			width, height, particles, blurRadius, blurPasses, configs)
+			width, height, particles, blurRadius, blurPasses, zoomFactor, configs)
 		start := time.Now()
 		one(model, iterations)
 		fmt.Println(time.Since(start))

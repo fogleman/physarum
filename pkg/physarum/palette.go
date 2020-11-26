@@ -1,6 +1,7 @@
 package physarum
 
 import (
+	"fmt"
 	"image/color"
 	"math/rand"
 )
@@ -18,6 +19,13 @@ func ShuffledPalette(palette Palette) Palette {
 func RandomPalette() Palette {
 	palette := Palettes[rand.Intn(len(Palettes))]
 	return ShuffledPalette(palette)
+}
+
+func (p Palette) Print() {
+	for _, c := range p {
+		fmt.Printf("HexColor(0x%02X%02X%02X),\n", c.R, c.G, c.B)
+	}
+	fmt.Println()
 }
 
 var Palettes = []Palette{
