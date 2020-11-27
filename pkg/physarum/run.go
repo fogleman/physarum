@@ -23,7 +23,7 @@ func one(model *Model, iterations int) {
 	fmt.Println()
 	fmt.Println(path)
 	fmt.Println(len(model.Particles), "particles")
-	PrintConfigs(model.Configs)
+	PrintConfigs(model.Configs, model.AttractionTable)
 	SummarizeConfigs(model.Configs)
 	for i := 0; i < iterations; i++ {
 		model.Step()
@@ -62,16 +62,20 @@ func Run() {
 	if false {
 		n := 2 + rand.Intn(4)
 		configs := RandomConfigs(n)
+		table := RandomAttractionTable(n)
 		model := NewModel(
-			width, height, particles, blurRadius, blurPasses, zoomFactor, configs)
+			width, height, particles, blurRadius, blurPasses, zoomFactor,
+			configs, table)
 		frames(model, 3)
 	}
 
 	for {
 		n := 2 + rand.Intn(4)
 		configs := RandomConfigs(n)
+		table := RandomAttractionTable(n)
 		model := NewModel(
-			width, height, particles, blurRadius, blurPasses, zoomFactor, configs)
+			width, height, particles, blurRadius, blurPasses, zoomFactor,
+			configs, table)
 		start := time.Now()
 		one(model, iterations)
 		fmt.Println(time.Since(start))

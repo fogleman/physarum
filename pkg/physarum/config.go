@@ -18,8 +18,11 @@ const (
 	depositionAmountMax = 5
 	decayFactorMin      = 0.1
 	decayFactorMax      = 0.5
-	repulsionFactorMean = 1
-	repulsionFactorStd  = 0.5
+
+	attractionFactorMean = 1
+	attractionFactorStd  = 0.5
+	repulsionFactorMean  = -1
+	repulsionFactorStd   = 0.5
 )
 
 type Config struct {
@@ -29,16 +32,11 @@ type Config struct {
 	StepDistance     float32
 	DepositionAmount float32
 	DecayFactor      float32
-	RepulsionFactor  float32
 }
 
 func RandomConfig() Config {
 	uniform := func(min, max float32) float32 {
 		return min + rand.Float32()*(max-min)
-	}
-
-	normal := func(mean, std float32) float32 {
-		return mean + float32(rand.NormFloat64())*std
 	}
 
 	sensorAngle := Radians(uniform(sensorAngleMin, sensorAngleMax))
@@ -47,7 +45,6 @@ func RandomConfig() Config {
 	stepDistance := uniform(stepDistanceMin, stepDistanceMax)
 	depositionAmount := uniform(depositionAmountMin, depositionAmountMax)
 	decayFactor := uniform(decayFactorMin, decayFactorMax)
-	repulsionFactor := normal(repulsionFactorMean, repulsionFactorStd)
 
 	return Config{
 		SensorAngle:      sensorAngle,
@@ -56,7 +53,6 @@ func RandomConfig() Config {
 		StepDistance:     stepDistance,
 		DepositionAmount: depositionAmount,
 		DecayFactor:      decayFactor,
-		RepulsionFactor:  repulsionFactor,
 	}
 }
 
@@ -68,17 +64,49 @@ func RandomConfigs(n int) []Config {
 	return configs
 }
 
-func PrintConfigs(configs []Config) {
+func RandomAttractionTable(n int) [][]float32 {
+	normal := func(mean, std float32) float32 {
+		return mean + float32(rand.NormFloat64())*std
+	}
+
+	result := make([][]float32, n)
+	for i := range result {
+		result[i] = make([]float32, n)
+		for j := range result[i] {
+			if i == j {
+				result[i][j] = normal(attractionFactorMean, attractionFactorStd)
+			} else {
+				result[i][j] = normal(repulsionFactorMean, repulsionFactorStd)
+			}
+		}
+	}
+	return result
+}
+
+func PrintConfigs(configs []Config, table [][]float32) {
+	fmt.Println("configs = []Config{")
 	for _, c := range configs {
-		fmt.Printf("Config{%v, %v, %v, %v, %v, %v, %v},\n",
+		fmt.Printf("\tConfig{%v, %v, %v, %v, %v, %v},\n",
 			c.SensorAngle,
 			c.SensorDistance,
 			c.RotationAngle,
 			c.StepDistance,
 			c.DepositionAmount,
-			c.DecayFactor,
-			c.RepulsionFactor)
+			c.DecayFactor)
 	}
+	fmt.Println("}")
+	fmt.Println("table = [][]float32{")
+	for _, row := range table {
+		fmt.Printf("\t{")
+		for i, value := range row {
+			if i > 0 {
+				fmt.Printf(", ")
+			}
+			fmt.Printf("%v", value)
+		}
+		fmt.Println("},")
+	}
+	fmt.Println("}")
 }
 
 func SummarizeConfigs(configs []Config) {
@@ -110,8 +138,5 @@ func SummarizeConfigs(configs []Config) {
 	})
 	summarize("DecayFactor", func(i int) float32 {
 		return configs[i].DecayFactor
-	})
-	summarize("RepulsionFactor", func(i int) float32 {
-		return configs[i].RepulsionFactor
 	})
 }

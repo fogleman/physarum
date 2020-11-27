@@ -211,9 +211,11 @@ func makeModel() *physarum.Model {
 	if len(Configs) > 0 {
 		configs = Configs
 	}
+	table := physarum.RandomAttractionTable(len(configs))
 	model := physarum.NewModel(
-		width, height, particles, blurRadius, blurPasses, zoomFactor, configs)
-	physarum.PrintConfigs(model.Configs)
+		width, height, particles, blurRadius, blurPasses, zoomFactor,
+		configs, table)
+	physarum.PrintConfigs(model.Configs, model.AttractionTable)
 	physarum.SummarizeConfigs(model.Configs)
 	fmt.Println()
 	return model

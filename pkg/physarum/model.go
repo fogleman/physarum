@@ -16,20 +16,27 @@ type Model struct {
 
 	ZoomFactor float32
 
-	Configs   []Config
+	Configs         []Config
+	AttractionTable [][]float32
+
 	Grids     []*Grid
 	Particles []Particle
 
 	Iteration int
 }
 
-func NewModel(w, h, numParticles, blurRadius, blurPasses int, zoomFactor float32, configs []Config) *Model {
+func NewModel(
+	w, h, numParticles, blurRadius, blurPasses int, zoomFactor float32,
+	configs []Config, attractionTable [][]float32) *Model {
+
 	grids := make([]*Grid, len(configs))
 	numParticlesPerConfig := int(math.Ceil(
 		float64(numParticles) / float64(len(configs))))
 	actualNumParticles := numParticlesPerConfig * len(configs)
 	particles := make([]Particle, actualNumParticles)
-	m := &Model{w, h, blurRadius, blurPasses, zoomFactor, configs, grids, particles, 0}
+	m := &Model{
+		w, h, blurRadius, blurPasses, zoomFactor,
+		configs, attractionTable, grids, particles, 0}
 	m.StartOver()
 	return m
 }
@@ -111,16 +118,14 @@ func (m *Model) Step() {
 	}
 
 	combineGrids := func(c int, wg *sync.WaitGroup) {
-		config := m.Configs[c]
 		grid := m.Grids[c]
-		repulsionFactor := config.RepulsionFactor
-		copy(grid.Temp, grid.Data)
+		for i := range grid.Temp {
+			grid.Temp[i] = 0
+		}
 		for i, other := range m.Grids {
-			if i == c {
-				continue
-			}
+			factor := m.AttractionTable[c][i]
 			for j, value := range other.Data {
-				grid.Temp[j] -= value * repulsionFactor
+				grid.Temp[j] += value * factor
 			}
 		}
 		wg.Done()
