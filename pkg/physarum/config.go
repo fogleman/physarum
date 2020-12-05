@@ -8,7 +8,7 @@ import (
 const (
 	sensorAngleMin      = 0
 	sensorAngleMax      = 120
-	sensorDistanceMin   = 0
+	sensorDistanceMin   = 4
 	sensorDistanceMax   = 64
 	rotationAngleMin    = 0
 	rotationAngleMax    = 120
@@ -20,9 +20,9 @@ const (
 	decayFactorMax      = 0.5
 
 	attractionFactorMean = 1
-	attractionFactorStd  = 0.5
+	attractionFactorStd  = 0.25
 	repulsionFactorMean  = -1
-	repulsionFactorStd   = 0.5
+	repulsionFactorStd   = 0.25
 )
 
 type Config struct {

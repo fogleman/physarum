@@ -27,6 +27,7 @@ func Image(w, h int, grids [][]float32, palette Palette, min, max, gamma float32
 			minValues[i] = 0
 			// minValues[i] = stat.Quantile(0.01, stat.Empirical, temp, nil)
 			maxValues[i] = float32(stat.Quantile(0.99, stat.Empirical, temp, nil))
+			maxValues[i] *= 2
 			c := palette[i]
 			fmt.Printf("%d #%02X%02X%02X %.3f\n", i, c.R, c.G, c.B, maxValues[i])
 		}

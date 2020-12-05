@@ -61,6 +61,8 @@ func init() {
 }
 
 type Texture struct {
+	w   int
+	h   int
 	id  uint32
 	buf []uint8
 	acc []float32
@@ -85,6 +87,8 @@ func NewTexture() *Texture {
 
 func (t *Texture) Init(width, height, count int) {
 	const N = 65536
+	t.w = width
+	t.h = height
 	t.buf = make([]uint8, width*height*3)
 	t.acc = make([]float32, width*height*3)
 	t.r = make([][]float32, count)
@@ -173,8 +177,8 @@ func (t *Texture) update(data [][]float32) {
 func (t *Texture) draw(window *glfw.Window) {
 	const padding = 0
 	w, h := window.GetFramebufferSize()
-	s1 := float32(w) / width
-	s2 := float32(h) / height
+	s1 := float32(w) / float32(t.w)
+	s2 := float32(h) / float32(t.h)
 	f := float32(1 - padding)
 	var x, y float32
 	if s1 >= s2 {
@@ -200,7 +204,7 @@ func (t *Texture) Draw(window *glfw.Window, data [][]float32) {
 	t.update(data)
 	gl.BindTexture(gl.TEXTURE_2D, t.id)
 	gl.TexImage2D(
-		gl.TEXTURE_2D, 0, gl.RGB, width, height,
+		gl.TEXTURE_2D, 0, gl.RGB, int32(t.w), int32(t.h),
 		0, gl.RGB, gl.UNSIGNED_BYTE, gl.Ptr(t.buf))
 	t.draw(window)
 	gl.BindTexture(gl.TEXTURE_2D, 0)
@@ -251,7 +255,7 @@ func main() {
 
 	reset := func() {
 		model = makeModel()
-		texture.Init(width, height, len(model.Configs))
+		texture.Init(model.W, model.H, len(model.Configs))
 		texture.SetPalette(physarum.RandomPalette(), gamma)
 	}
 

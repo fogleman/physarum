@@ -10,8 +10,8 @@ import (
 const (
 	width      = 1024
 	height     = 1024
-	particles  = 1 << 20
-	iterations = 500
+	particles  = 1 << 22
+	iterations = 400
 	blurRadius = 1
 	blurPasses = 2
 	zoomFactor = 1
