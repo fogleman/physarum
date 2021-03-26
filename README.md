@@ -12,9 +12,15 @@ https://sagejenson.com/physarum
 The algorithm is surprisingly simple given how complex its outputs appear.
 That's the magic of generative algorithms!
 
+## Setup
+
+    Init the module: `go mod init github.com/fogleman/physarum`
+
+    Install the stat module : `go get github.com/gonum/stat`
+
 ## Usage
 
-    go run cmd/physarum/main.go
+    `go run cmd/physarum/main.go`
 
 ## Examples
 
