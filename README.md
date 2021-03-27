@@ -14,7 +14,7 @@ That's the magic of generative algorithms!
 
 ## Usage
 
-    go run cmd/physarum/main.go
+    go run main.go
 
 ## Examples
 

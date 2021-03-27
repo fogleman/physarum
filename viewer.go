@@ -5,19 +5,19 @@ import (
 	"log"
 	"math"
 	"math/rand"
+	"physarum/physarum"
 	"runtime"
 	"sort"
 	"time"
 
-	"github.com/fogleman/physarum/pkg/physarum"
 	"github.com/go-gl/gl/v2.1/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
 	"github.com/gonum/stat"
 )
 
 const (
-	width      = 512
-	height     = 512
+	width      = 2048
+	height     = 1024
 	particles  = 1 << 20
 	blurRadius = 1
 	blurPasses = 2
