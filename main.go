@@ -3,9 +3,8 @@ package main
 import (
 	"math/rand"
 	_ "net/http/pprof"
+	"physarum/physarum"
 	"time"
-
-	"github.com/fogleman/physarum/pkg/physarum"
 )
 
 func main() {

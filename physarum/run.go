@@ -30,7 +30,7 @@ func one(model *Model, iterations int) {
 	}
 	palette := RandomPalette()
 	im := Image(model.W, model.H, model.Data(), palette, 0, 0, 1/2.2)
-	SavePNG(path, im, png.DefaultCompression)
+	_ = SavePNG(path, im, png.DefaultCompression)
 }
 
 func frames(model *Model, rate int) {
@@ -39,7 +39,7 @@ func frames(model *Model, rate int) {
 	saveImage := func(path string, w, h int, grids [][]float32, ch chan bool) {
 		max := particles / float32(width*height) * 20
 		im := Image(w, h, grids, palette, 0, max, 1/2.2)
-		SavePNG(path, im, png.BestSpeed)
+		_ = SavePNG(path, im, png.BestSpeed)
 		if ch != nil {
 			ch <- true
 		}

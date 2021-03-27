@@ -180,6 +180,7 @@ func direction(rnd *rand.Rand, C, L, R float32) float32 {
 	return 0
 }
 
+/*
 func weightedDirection(rnd *rand.Rand, C, L, R float32) float32 {
 	W := [3]float32{C, L, R}
 	D := [3]float32{0, -1, 1}
@@ -204,3 +205,4 @@ func weightedDirection(rnd *rand.Rand, C, L, R float32) float32 {
 	}
 	return D[2]
 }
+*/
