@@ -2,7 +2,6 @@ package physarum
 
 import (
 	"log"
-	"math/rand"
 )
 
 type Grid struct {
@@ -19,7 +18,7 @@ func NewGrid(w, h int) *Grid {
 	data := make([]float32, w*h)
 	temp := make([]float32, w*h)
 	for i := range data {
-		data[i] = rand.Float32()
+		data[i] = 0.0 //01 //rand.Float32()
 	}
 	return &Grid{w, h, data, temp}
 }

@@ -1,6 +1,7 @@
 package physarum
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
 	"runtime"
@@ -23,11 +24,13 @@ type Model struct {
 	Particles []Particle
 
 	Iteration int
+
+	InitType string
 }
 
 func NewModel(
 	w, h, numParticles, blurRadius, blurPasses int, zoomFactor float32,
-	configs []Config, attractionTable [][]float32) *Model {
+	configs []Config, attractionTable [][]float32, initType string) *Model {
 
 	grids := make([]*Grid, len(configs))
 	numParticlesPerConfig := int(math.Ceil(
@@ -36,7 +39,7 @@ func NewModel(
 	particles := make([]Particle, actualNumParticles)
 	m := &Model{
 		w, h, blurRadius, blurPasses, zoomFactor,
-		configs, attractionTable, grids, particles, 0}
+		configs, attractionTable, grids, particles, 0, initType}
 	m.StartOver()
 	return m
 }
@@ -48,9 +51,19 @@ func (m *Model) StartOver() {
 	for c := range m.Configs {
 		m.Grids[c] = NewGrid(m.W, m.H)
 		for i := 0; i < numParticlesPerConfig; i++ {
-			x := rand.Float32() * float32(m.W)
-			y := rand.Float32() * float32(m.H)
-			a := rand.Float32() * 2 * math.Pi
+			var x, y, a float32
+			switch m.InitType {
+			case "random":
+				x = rand.Float32() * float32(m.W)
+				y = rand.Float32() * float32(m.H)
+				a = rand.Float32() * 2 * math.Pi
+			case "point":
+				x = float32(m.W) / 2
+				y = float32(m.H) / 2
+				a = rand.Float32() * 2 * math.Pi
+			default:
+				fmt.Println("Unknown InitType ", m.InitType, " doing something silly")
+			}
 			p := Particle{x, y, a, uint32(c)}
 			m.Particles = append(m.Particles, p)
 		}

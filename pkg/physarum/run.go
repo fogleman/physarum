@@ -4,13 +4,24 @@ import (
 	"fmt"
 	"image/png"
 	"math/rand"
+	"path/filepath"
 	"time"
 )
 
+// const (
+// 	width      = 1024
+// 	height     = 1024
+// 	particles  = 1 << 22
+// 	iterations = 400
+// 	blurRadius = 1
+// 	blurPasses = 2
+// 	zoomFactor = 1
+// )
+
 const (
-	width      = 1024
-	height     = 1024
-	particles  = 1 << 22
+	width      = 4096
+	height     = 2048
+	particles  = 1 << 25
 	iterations = 400
 	blurRadius = 1
 	blurPasses = 2
@@ -19,9 +30,9 @@ const (
 
 func one(model *Model, iterations int) {
 	now := time.Now().UTC().UnixNano() / 1000
-	path := fmt.Sprintf("out%d.png", now)
+	file := fmt.Sprintf("out%d.png", now)
 	fmt.Println()
-	fmt.Println(path)
+	fmt.Println(file)
 	fmt.Println(len(model.Particles), "particles")
 	PrintConfigs(model.Configs, model.AttractionTable)
 	SummarizeConfigs(model.Configs)
@@ -30,42 +41,53 @@ func one(model *Model, iterations int) {
 	}
 	palette := RandomPalette()
 	im := Image(model.W, model.H, model.Data(), palette, 0, 0, 1/2.2)
-	SavePNG(path, im, png.DefaultCompression)
+	SavePNG(".", file, im, png.DefaultCompression)
 }
 
 func frames(model *Model, rate int) {
 	palette := RandomPalette()
 
-	saveImage := func(path string, w, h int, grids [][]float32, ch chan bool) {
+	saveImage := func(path string, file string, w, h int, grids [][]float32) { //, ch chan bool) {
 		max := particles / float32(width*height) * 20
 		im := Image(w, h, grids, palette, 0, max, 1/2.2)
-		SavePNG(path, im, png.BestSpeed)
-		if ch != nil {
-			ch <- true
-		}
+		SavePNG(path, file, im, png.BestSpeed)
+		// if ch != nil {
+		// 	ch <- true
+		// }
 	}
 
-	ch := make(chan bool, 1)
-	ch <- true
+	now := time.Now().UTC().UnixNano() / 1000
+	path := filepath.Join(".", "output", fmt.Sprintf("%d", now))
+
+	fmt.Println(len(model.Particles), "particles")
+	PrintConfigs(model.Configs, model.AttractionTable)
+	SummarizeConfigs(model.Configs)
+
+	// ch := make(chan bool, 1)
+	// ch <- true
 	for i := 0; ; i++ {
-		fmt.Println(i)
+		if i%1000 == 0 {
+			fmt.Println(i)
+		}
 		model.Step()
 		if i%rate == 0 {
-			<-ch
-			path := fmt.Sprintf("frame%08d.png", i/rate)
-			go saveImage(path, model.W, model.H, model.Data(), ch)
+			// <-ch
+			file := fmt.Sprintf("frame%08d.png", i/rate)
+			// fmt.Println(path + " " + file)
+			go saveImage(path, file, model.W, model.H, model.Data()) //, ch)
 		}
 	}
 }
 
 func Run() {
-	if false {
-		n := 2 + rand.Intn(4)
+	if true {
+		// n := 2 + rand.Intn(4)
+		n := 1
 		configs := RandomConfigs(n)
 		table := RandomAttractionTable(n)
 		model := NewModel(
 			width, height, particles, blurRadius, blurPasses, zoomFactor,
-			configs, table)
+			configs, table, "point")
 		frames(model, 3)
 	}
 
@@ -75,7 +97,7 @@ func Run() {
 		table := RandomAttractionTable(n)
 		model := NewModel(
 			width, height, particles, blurRadius, blurPasses, zoomFactor,
-			configs, table)
+			configs, table, "random")
 		start := time.Now()
 		one(model, iterations)
 		fmt.Println(time.Since(start))

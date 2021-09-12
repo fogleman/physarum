@@ -6,6 +6,8 @@ import (
 	"image/png"
 	"math"
 	"os"
+	"fmt"
+	"path/filepath"
 )
 
 func Radians(degrees float32) float32 {
@@ -16,15 +18,23 @@ func Degrees(radians float32) float32 {
 	return radians * 180 / math.Pi
 }
 
-func SavePNG(path string, im image.Image, level png.CompressionLevel) error {
-	file, err := os.Create(path)
+func SavePNG(path string, file string, im image.Image, level png.CompressionLevel) error {
+	err := os.MkdirAll(path, os.ModePerm)
 	if err != nil {
+		fmt.Println("PATH CREATION ERROR!")
+		fmt.Println(err)
 		return err
 	}
-	defer file.Close()
+	file_handle, err := os.Create(filepath.Join(path, file))
+	if err != nil {
+		fmt.Println("FILE CREATION ERROR!")
+		fmt.Println(err)
+		return err
+	}
+	defer file_handle.Close()
 	var encoder png.Encoder
 	encoder.CompressionLevel = level
-	return encoder.Encode(file, im)
+	return encoder.Encode(file_handle, im)
 }
 
 func HexColor(x int) color.RGBA {
