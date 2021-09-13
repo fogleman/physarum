@@ -1,7 +1,6 @@
 package physarum
 
 import (
-	"fmt"
 	"math"
 	"math/rand"
 	"runtime"
@@ -61,9 +60,48 @@ func (m *Model) StartOver() {
 				x = float32(m.W) / 2
 				y = float32(m.H) / 2
 				a = rand.Float32() * 2 * math.Pi
-			default:
-				fmt.Println("Unknown InitType ", m.InitType, " doing something silly")
+			case "random_circle_random":
+				a = rand.Float32() * 2 * math.Pi
+				circle_radius_fraction := 0.25
+				r := circle_radius_fraction * math.Min(float64(m.H), float64(m.W)) * math.Sqrt(rand.Float64())
+				x_tmp, y_tmp := math.Sincos(float64(a))
+				x = float32(r*x_tmp) + float32(m.W)/2
+				y = float32(r*y_tmp) + float32(m.H)/2
+				a = rand.Float32() * 2 * math.Pi
+			case "random_circle_out":
+				a = rand.Float32() * 2 * math.Pi
+				circle_radius_fraction := 0.25
+				r := circle_radius_fraction * math.Min(float64(m.H), float64(m.W)) * math.Sqrt(rand.Float64())
+				y_tmp, x_tmp := math.Sincos(float64(a))
+				x = float32(r*x_tmp) + float32(m.W)/2
+				y = float32(r*y_tmp) + float32(m.H)/2
+			case "random_circle_in":
+				a = rand.Float32() * 2 * math.Pi
+				circle_radius_fraction := 0.25
+				r := circle_radius_fraction * math.Min(float64(m.H), float64(m.W)) * math.Sqrt(rand.Float64())
+				y_tmp, x_tmp := math.Sincos(float64(a))
+				x = float32(r*x_tmp) + float32(m.W)/2
+				y = float32(r*y_tmp) + float32(m.H)/2
+				a_tmp := float64(a + math.Pi)
+				a = float32(math.Atan2(math.Sin(a_tmp), math.Cos(a_tmp)))
+			case "random_circle_cw":
+				a = rand.Float32() * 2 * math.Pi
+				circle_radius_fraction := 0.25
+				r := circle_radius_fraction * math.Min(float64(m.H), float64(m.W)) * math.Sqrt(rand.Float64())
+				y_tmp, x_tmp := math.Sincos(float64(a))
+				x = float32(r*x_tmp) + float32(m.W)/2
+				y = float32(r*y_tmp) + float32(m.H)/2
+				a_tmp := float64(a + math.Pi/2.0)
+				a = float32(math.Atan2(math.Sin(a_tmp), math.Cos(a_tmp)))
+			case "random_circle_quads":
+				a = rand.Float32() * 2 * math.Pi
+				circle_radius_fraction := 0.25
+				r := circle_radius_fraction * math.Min(float64(m.H), float64(m.W)) * math.Sqrt(rand.Float64())
+				x_tmp, y_tmp := math.Sincos(float64(a))
+				x = float32(r*x_tmp) + float32(m.W)/2
+				y = float32(r*y_tmp) + float32(m.H)/2
 			}
+			// fmt.Println(x-float32(m.W)/2, y-float32(m.H)/2, a)
 			p := Particle{x, y, a, uint32(c)}
 			m.Particles = append(m.Particles, p)
 		}

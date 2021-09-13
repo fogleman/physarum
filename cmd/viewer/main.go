@@ -10,15 +10,30 @@ import (
 	"time"
 
 	"github.com/fogleman/physarum/pkg/physarum"
-	"github.com/go-gl/gl/v2.1/gl"
-	"github.com/go-gl/glfw/v3.1/glfw"
+	// "github.com/go-gl/gl/v2.1/gl"
+	// "github.com/go-gl/gl/v3.2-compatibility/gl"
+	"github.com/go-gl/gl/v4.6-compatibility/gl"
+	// "github.com/go-gl/glfw/v3.1/glfw"
+	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/gonum/stat"
 )
 
+// const (
+// 	width      = 512
+// 	height     = 512
+// 	particles  = 1 << 20
+// 	blurRadius = 1
+// 	blurPasses = 2+
+// 	zoomFactor = 1
+// 	scale      = 1
+// 	gamma      = 1 / 2.2
+// 	title      = "physarum"
+// )
+
 const (
-	width      = 512
-	height     = 512
-	particles  = 1 << 20
+	width      = 2048
+	height     = 1024
+	particles  = 1 << 23
 	blurRadius = 1
 	blurPasses = 2
 	zoomFactor = 1
@@ -29,8 +44,8 @@ const (
 
 var Configs = []physarum.Config{
 	// cyclones
-	// 	{4, 0.87946403, 42.838207, 0.97047323, 2.8447638, 5, 0.29681, 1.4512},
-	// 	{4, 1.7357124, 17.430664, 0.30490428, 2.1706762, 5, 0.27878627, 0.46232897},
+	// {4, 0.87946403, 42.838207, 0.97047323, 2.8447638, 5, 0.29681, 1.4512},
+	// {4, 1.7357124, 17.430664, 0.30490428, 2.1706762, 5, 0.27878627, 0.46232897},
 
 	// dunes
 	// {2, 0.99931663, 44.21652, 1.9704952, 1.4215798, 5, 0.1580779, 0.7574965},
@@ -218,7 +233,7 @@ func makeModel() *physarum.Model {
 	table := physarum.RandomAttractionTable(len(configs))
 	model := physarum.NewModel(
 		width, height, particles, blurRadius, blurPasses, zoomFactor,
-		configs, table, "random")
+		configs, table, "random_circle_random")
 	physarum.PrintConfigs(model.Configs, model.AttractionTable)
 	physarum.SummarizeConfigs(model.Configs)
 	fmt.Println()
@@ -228,6 +243,8 @@ func makeModel() *physarum.Model {
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
+	num_steps := 1
+
 	// initialize glfw
 	if err := glfw.Init(); err != nil {
 		log.Fatal(err)
@@ -235,8 +252,9 @@ func main() {
 	defer glfw.Terminate()
 
 	// create window
-	glfw.WindowHint(glfw.ContextVersionMajor, 2)
-	glfw.WindowHint(glfw.ContextVersionMinor, 1)
+	glfw.WindowHint(glfw.ContextVersionMajor, 4)
+	glfw.WindowHint(glfw.ContextVersionMinor, 6)
+	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCompatProfile)
 	window, err := glfw.CreateWindow(
 		width*scale, height*scale, title, nil, nil)
 	if err != nil {
@@ -263,30 +281,70 @@ func main() {
 
 	window.SetKeyCallback(func(window *glfw.Window, key glfw.Key, code int, action glfw.Action, mods glfw.ModifierKey) {
 		if action == glfw.Press {
-			if key == glfw.KeySpace {
+			switch key {
+			case glfw.KeySpace:
 				reset()
-			}
-			if key == glfw.KeyR {
+			case glfw.KeyR:
 				model.StartOver()
-			}
-			if key == glfw.KeyP {
+			case glfw.KeyP:
 				texture.SetPalette(physarum.RandomPalette(), gamma)
-			}
-			if key == glfw.KeyO {
+			case glfw.KeyO:
 				texture.ShufflePalette()
-			}
-			if key == glfw.KeyA {
+			case glfw.KeyA:
 				texture.AutoLevel(model.Data(), 0.001, 0.999)
+			case glfw.KeyKPAdd:
+				if num_steps < math.MaxInt {
+					num_steps++
+				}
+			case glfw.KeyKPSubtract:
+				if num_steps > 1 {
+					num_steps--
+				}
+			case glfw.Key1:
+				model.InitType = "random"
+			case glfw.Key2:
+				model.InitType = "point"
+			case glfw.Key3:
+				model.InitType = "random_circle_random"
+			case glfw.Key4:
+				model.InitType = "random_circle_out"
+			case glfw.Key5:
+				model.InitType = "random_circle_in"
+			case glfw.Key6:
+				model.InitType = "random_circle_quads"
+			case glfw.Key7:
+				model.InitType = "random_circle_cw"
 			}
 		}
 	})
 
-	// main loop
+	saveVideo := true
+	var video *physarum.Video
+	videoFameChann := make(chan []uint8, 1024)
+	videoDoneChann := make(chan bool)
+	if saveVideo {
+		video = physarum.NewVideo()
+
+		go video.SaveVideoFfmpeg(videoFameChann, videoDoneChann)
+	}
+	fmt.Println("baz")
+
 	for !window.ShouldClose() {
 		gl.Clear(gl.COLOR_BUFFER_BIT)
-		model.Step()
+		for i := 0; i < num_steps; i++ {
+			model.Step()
+		}
+		// fmt.Println("step")
+		if saveVideo {
+			videoFameChann <- texture.buf
+		}
 		texture.Draw(window, model.Data())
 		window.SwapBuffers()
 		glfw.PollEvents()
 	}
+
+	// Close the pipe and let the video finish
+	close(videoFameChann)
+	fmt.Println("sent all frames")
+	<-videoDoneChann // wait for the goroutine to be finished
 }

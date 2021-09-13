@@ -87,7 +87,7 @@ func Run() {
 		table := RandomAttractionTable(n)
 		model := NewModel(
 			width, height, particles, blurRadius, blurPasses, zoomFactor,
-			configs, table, "point")
+			configs, table, "random_circle_in")
 		frames(model, 3)
 	}
 
