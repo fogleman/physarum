@@ -1,6 +1,7 @@
 package physarum
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
 	"runtime"
@@ -101,7 +102,9 @@ func (m *Model) StartOver() {
 				x = float32(r*x_tmp) + float32(m.W)/2
 				y = float32(r*y_tmp) + float32(m.H)/2
 			}
-			// fmt.Println(x-float32(m.W)/2, y-float32(m.H)/2, a)
+			if false { // for testing, it is a LOT...
+				fmt.Println(x-float32(m.W)/2, y-float32(m.H)/2, a)
+			}
 			p := Particle{x, y, a, uint32(c)}
 			m.Particles = append(m.Particles, p)
 		}
@@ -132,8 +135,13 @@ func (m *Model) Step() {
 		L := grid.GetTemp(xl, yl)
 		R := grid.GetTemp(xr, yr)
 
-		da := rotationAngle * direction(rnd, C, L, R)
-		// da := rotationAngle * weightedDirection(rnd, C, L, R)
+		var da float32
+		if true {
+			da = rotationAngle * direction(rnd, C, L, R)
+		} else {
+			// TODO: what does this do???
+			da = rotationAngle * weightedDirection(rnd, C, L, R)
+		}
 		p.A = Shift(p.A+da, 2*math.Pi)
 		p.X = Shift(p.X+cos(p.A)*stepDistance, float32(m.W))
 		p.Y = Shift(p.Y+sin(p.A)*stepDistance, float32(m.H))
