@@ -77,5 +77,11 @@ var Palettes = []Palette{
 		HexColor(0xFBD506),
 		HexColor(0xA8BF12),
 		HexColor(0x00AAB5),
+	}, {
+		HexColor(0xFFFFFF),
+		HexColor(0xFA1A1A),
+		HexColor(0xFF00FF),
+		HexColor(0x33FFFF),
+		HexColor(0xFF9900),
 	},
 }
